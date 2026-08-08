@@ -1,0 +1,61 @@
+name: 破线监控自动生成
+
+on:
+  schedule:
+    # GitHub Actions 使用 UTC 时间；北京时间 = UTC+8
+    # 30 2,6 * * 1-5 = 北京时间 10:30 / 14:30（周一至周五）
+    - cron: '30 2,6 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: poxian-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 拉取历史数据（用于走势图累计）
+        run: |
+          mkdir -p output
+          curl -sfL "https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/history.jsonl" -o output/history.jsonl || true
+
+      - name: 注入推送密钥（可选，配置 SERVERCHAN_KEY 后生效）
+        env:
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          key = os.environ.get('SERVERCHAN_KEY', '')
+          if key:
+              cfg = json.load(open('config.workflow.json', encoding='utf-8'))
+              cfg.setdefault('push', {})['serverchan_key'] = key
+              json.dump(cfg, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
+          PY
+
+      - name: 运行破线监控
+        run: |
+          python3 monitor.py --config config.workflow.json --no-notify
+
+      - name: 生成首页
+        run: |
+          cp output/dashboard.html output/index.html
+
+      - name: 发布到 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: gh-pages

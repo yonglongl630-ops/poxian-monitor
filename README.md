@@ -1,0 +1,206 @@
+# 破线监控
+
+监控同花顺自选股的 5 日线 / 10 日线破线情况：每个交易日 10:30、14:30 自动统计破线数量与比例，判断 70% / 80% 阈值是否触发，并生成可视化监控表。
+
+## 功能
+
+- 实时行情 + 前复权日K（主：腾讯行情；备用：东方财富）
+- 破线判定：现价 < MA5 / 现价 < MA10（交易时段内均线并入实时价，与行情软件盘中口径一致）
+- 汇总统计：破 5 日线数量/比例、破 10 日线数量/比例
+- 阈值预警：破 5 日线 ≥70%、≥80%；破 10 日线 ≥70%、≥80%（触发时发送 macOS 系统通知）
+- 手机推送：阈值触发时推送到微信 / iOS / 邮箱（Server酱 / Bark / SMTP）
+- 监控表：`output/dashboard.html`（自刷新），数据快照 `output/latest.json`，历史 `output/history.jsonl`
+- 手机网页访问：`python3 serve.py` 启动网页服务，手机/其他设备随时查看
+- 交易日自动跳过节假日（以上证指数当日是否有K线判断）
+
+## 快速开始
+
+### 1. 填写自选股（二选一）
+
+**方式 A：手动填写**
+
+编辑 `config.json` 的 `watchlist` 数组，填入 6 位股票代码：
+
+```json
+"watchlist": ["600519", "000001", "300750"]
+```
+
+**方式 B：从同花顺账号同步（推荐）**
+
+方式 B-1：账号密码自动登录（最简单）
+
+```bash
+python3 ths_sync.py --username 你的同花顺账号 --password 你的密码
+```
+
+登录成功后会自动保存会话 Cookie，并拉取自选股列表写入 `config.json`。
+后续可直接 `python3 ths_sync.py` 复用会话（Cookie 有效期内无需再次输入密码）。
+
+方式 B-2：浏览器 Cookie
+
+1. 浏览器打开并登录 <https://t.10jqka.com.cn/>
+2. 按 `F12` → 打开 Network（网络）→ 刷新页面
+3. 任选一个 `t.10jqka.com.cn` 请求 → Headers（标头）→ 复制 Request Headers 里的 `Cookie` 整串
+4. 同步到本地配置：
+
+```bash
+python3 ths_sync.py --cookie "粘贴你的Cookie整串"
+```
+
+> 注意：Cookie 属于登录凭证，包含敏感信息，请勿外传；如需更换，重新执行即可覆盖。
+> 若 Cookie 提示"未登录"，通常是因为复制时漏掉了 HttpOnly 的会话 Cookie（userid/sessionid）。
+> 建议改用方式 B-1 账号密码登录，或在 Network 面板右键请求 → Copy as cURL 后把整段命令发给我提取完整 Cookie。
+
+### 2. 手动执行一次监控
+
+```bash
+python3 monitor.py
+```
+
+完成后打开 `output/dashboard.html` 查看监控表；终端会输出汇总统计。
+
+### 3. 工作日 10:30 / 14:30 自动监控（二选一）
+
+**方式 A：常驻调度器（推荐，简单）**
+
+保持终端窗口运行：
+
+```bash
+python3 scheduler.py
+```
+
+**方式 B：macOS 开机自启服务（无需保持终端）**
+
+```bash
+bash install_launchd.sh     # 安装并启动
+bash uninstall_launchd.sh   # 卸载
+```
+
+服务日志：`output/scheduler.log`、`output/launchd.log`。
+
+## 手机查看监控结果（二选一）
+
+### 方式 1：手机推送（推荐，最简单）
+
+在 `config.json` 的 `push` 字段填入任一渠道密钥：
+
+```json
+"push": {
+  "serverchan_key": "SCTxxxxxxxxxxxxxxxx",   // 微信推送：sct.ftqq.com 扫码登录获取
+  "bark_key": "xxxxxxxxxxxxxxxx",            // iOS 推送：App Store 安装 Bark 后获取
+  "email": {
+    "smtp_host": "smtp.qq.com",
+    "smtp_port": 465,
+    "username": "你的邮箱@qq.com",
+    "password": "SMTP授权码",
+    "to": ["接收邮箱@qq.com"]
+  }
+}
+```
+
+测试推送：
+
+```bash
+python3 notify.py
+```
+
+配置后，每次阈值触发（70%/80%）都会自动推送到手机。
+
+### 方式 2：手机网页实时监控
+
+Mac 上启动网页服务（保持终端运行）：
+
+```bash
+python3 serve.py
+```
+
+手机连同一 WiFi，浏览器打开终端显示的地址，例如：
+
+```
+http://192.168.1.72:8800/dashboard.html
+```
+
+页面每 60 秒自动刷新，交易时段内监控数据同步实时更新（可加 `--interval 30` 加快）。
+如需在任何网络下访问，可用内网穿透（如 Tailscale、ngrok、cloudflared）把 8800 端口映射成公网网址；
+或把本项目部署到云服务器（自选股已固化在 config.json，云服务器可直接运行 monitor/serve，无需同花顺登录）。
+
+### 方式 3：公网网址（GitHub Pages，无需 Mac 开机、无需云服务器）
+
+利用 GitHub 免费提供的 Actions + Pages：工作日 10:30/14:30 由 GitHub 云端自动运行监控，
+生成监控表发布到公网网址，任何设备浏览器直接访问，Mac 关机也不影响。
+
+部署步骤：
+
+1. 注册 GitHub 账号（免费）：<https://github.com>
+2. 新建仓库：点右上角 **+ → New repository**，仓库名随意（如 `poxian-monitor`），
+   **Visibility 选 Public**（免费版 Pages 仅支持公开仓库），不要勾选初始化 README
+3. 在 Mac 终端执行（把用户名和仓库名换成你自己的）：
+
+```bash
+cd "/Users/liangyonglong/Desktop/破线监控"
+git init -b main
+git add .
+git commit -m "破线监控系统"
+git remote add origin https://github.com/你的用户名/poxian-monitor.git
+git push -u origin main
+```
+
+> 含同花顺 Cookie 的 `config.json` 已被 `.gitignore` 排除，不会上传到 GitHub。
+> 云端使用的是脱敏配置 `config.workflow.json`（仅有自选股和阈值，无登录信息）。
+
+4. 开启 Pages：仓库页面 **Settings → Pages**，Source 选 **Deploy from a branch**，
+   分支选 `gh-pages`、目录 `/ (root)`，点 Save
+5. 等 1~2 分钟，访问（替换成你的用户名和仓库名）：
+
+```
+https://你的用户名.github.io/poxian-monitor/
+```
+
+6. 自动更新：工作日 10:30 / 14:30（北京时间）自动生成；也可随时进仓库 **Actions** 标签页
+   点 **Run workflow** 手动刷新
+7. 可选：云端直接推微信。仓库 **Settings → Secrets and variables → Actions →
+   New repository secret**，Name 填 `SERVERCHAN_KEY`，Value 填你的 Server酱 SendKey。
+   之后每次触发 70%/80% 阈值，云端会直接推送微信，与 Mac 无关。
+
+> 隐私提醒：公开仓库意味着自选股与监控数据对公网可见。若需私有 + 公网访问，
+> 需 GitHub Pro（约 $4/月）或改用云服务器方案。
+
+## 指标口径
+
+| 指标 | 说明 |
+| --- | --- |
+| MA5 | 最近 5 个交易日收盘价（前复权）均值，交易时段内含实时价 |
+| MA10 | 最近 10 个交易日收盘价（前复权）均值，交易时段内含实时价 |
+| 破线 | 现价低于对应均线 |
+| 比例 | 破线只数 ÷ 有效样本只数（上市不足 5/10 个交易日的不计入分母） |
+
+## 配置项
+
+| 字段 | 说明 |
+| --- | --- |
+| `watchlist` | 自选股 6 位代码数组 |
+| `ths_cookie` | 同花顺登录 Cookie（用于自动同步自选股） |
+| `ma_periods` | 均线周期（默认 5、10） |
+| `thresholds` | 预警阈值百分比（默认 70、80） |
+| `check_times` | 每日监控时间（默认 10:30、14:30） |
+| `notify_on_hit` | 阈值触发时是否发送系统通知 |
+| `timezone` | 时区（默认 Asia/Shanghai） |
+
+## 目录结构
+
+```
+破线监控/
+├── config.json         # 配置（自选股、Cookie、时间）
+├── stock_data.py       # 行情数据获取（腾讯/东方财富）
+├── monitor.py          # 破线监控主程序
+├── scheduler.py        # 工作日定时调度器
+├── serve.py            # 手机网页服务 + 盘中实时刷新
+├── notify.py           # 手机推送（Server酱/Bark/邮件）
+├── ths_sync.py         # 同花顺自选股同步
+├── install_launchd.sh  # macOS 开机自启安装
+├── uninstall_launchd.sh
+├── output/             # 运行时生成：dashboard.html / latest.json / history.jsonl
+└── README.md
+```
+
+> 免责声明：本工具数据来自公开行情接口，仅供研究参考，不构成投资建议。请自行核实行情准确性。
