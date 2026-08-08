@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>破线监控</title>
+<style>
+:root{--bg:#0f1420;--card:#171e2d;--border:#243049;--text:#e6ecf5;--muted:#8fa0b8;
+--red:#ef4444;--orange:#f59e0b;--green:#22c55e;--blue:#3b82f6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,
+"PingFang SC","Microsoft YaHei",sans-serif;padding:24px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+h1{font-size:22px}.meta{color:var(--muted);font-size:13px}
+.banner{padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:15px;font-weight:600}
+.banner.warn{background:rgba(239,68,68,.14);border:1px solid var(--red);color:#ff9a9a}
+.banner.ok{background:rgba(34,197,94,.12);border:1px solid var(--green);color:#7ee2a5}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card .label{color:var(--muted);font-size:13px;margin-bottom:8px}
+.card .num{font-size:30px;font-weight:700}
+.card .sub{color:var(--muted);font-size:12px;margin-top:6px}
+.num.red{color:var(--red)}.num.orange{color:var(--orange)}.num.green{color:var(--green)}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.chip{padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;
+border:1px solid var(--border);background:var(--card);color:var(--muted)}
+.chip.hit{border-color:var(--red);color:#ff9a9a;background:rgba(239,68,68,.12)}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.chart-box h2{font-size:15px;margin-bottom:10px}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-weight:600;background:#131a28;position:sticky;top:0}
+td:first-child,th:first-child{text-align:center}
+td:nth-child(2),th:nth-child(2){text-align:center}
+td:nth-child(3){text-align:left}
+tr.both{background:rgba(239,68,68,.11)}
+tr.one{background:rgba(245,158,11,.07)}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
+.badge.y{background:rgba(239,68,68,.18);color:#ff9a9a}
+.badge.n{background:rgba(143,160,184,.12);color:var(--muted)}
+.up{color:var(--red)}.down{color:var(--green)}.flat{color:var(--muted)}
+.btn{margin-left:10px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);
+background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
+.btn:hover{border-color:var(--blue)}
+.foot{margin-top:16px;color:var(--muted);font-size:12px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1>破线监控</h1>
+    <div class="meta">更新时间：2026-08-08 22:06:32　市场：非交易日　自选股总数：22</div>
+  </div>
+  <button class="btn" id="refreshBtn">立即刷新</button>
+</div>
+<div class="banner ok">当前未触发 70% / 80% 破线阈值。</div>
+<div class="cards">
+<div class="card"><div class="label">自选股总数</div><div class="num">22</div><div class="sub">有效样本：MA5 22 只 / MA10 22 只</div></div>
+<div class="card"><div class="label">破5日线（现价 &lt; MA5）</div><div class="num green">2<span style="font-size:15px;color:var(--muted)"> / 22 只</span></div><div class="sub">比例：9.09%　阈值 ≥70% / ≥80%</div></div>
+<div class="card"><div class="label">破10日线（现价 &lt; MA10）</div><div class="num green">1<span style="font-size:15px;color:var(--muted)"> / 22 只</span></div><div class="sub">比例：4.55%　阈值 ≥70% / ≥80%</div></div>
+<div class="card"><div class="label">市场状态</div><div class="num" style="font-size:22px">非交易日</div><div class="sub">2026-08-08 22:06:32（False）</div></div>
+</div>
+<div class="chips">
+<span class="chip ">破5日线 ≥ 70%：未触发</span><span class="chip ">破5日线 ≥ 80%：未触发</span><span class="chip ">破10日线 ≥ 70%：未触发</span><span class="chip ">破10日线 ≥ 80%：未触发</span>
+</div>
+<div class="chart-box"><h2>破线比例走势</h2><p style="color:var(--muted);font-size:13px">暂无走势数据，下次监控后显示。</p></div>
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th>
+<th>MA5</th><th>距MA5</th><th>破5日线</th>
+<th>MA10</th><th>距MA10</th><th>破10日线</th>
+</tr></thead>
+<tbody>
+<tr class="">
+<td>1</td>
+<td>688181</td>
+<td style="text-align:left">八亿时空</td>
+<td>40.00</td>
+<td class="up">3.31%</td>
+<td>37.04</td>
+<td>7.99%</td>
+<td><span class="badge n">正常</span></td>
+<td>36.24</td>
+<td>10.38%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>2</td>
+<td>000833</td>
+<td style="text-align:left">粤桂股份</td>
+<td>20.22</td>
+<td class="down">-0.74%</td>
+<td>20.04</td>
+<td>0.92%</td>
+<td><span class="badge n">正常</span></td>
+<td>19.60</td>
+<td>3.17%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>3</td>
+<td>603435</td>
+<td style="text-align:left">嘉德利</td>
+<td>54.79</td>
+<td class="up">2.12%</td>
+<td>51.36</td>
+<td>6.68%</td>
+<td><span class="badge n">正常</span></td>
+<td>48.88</td>
+<td>12.08%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>4</td>
+<td>688143</td>
+<td style="text-align:left">长盈通</td>
+<td>112.29</td>
+<td class="up">7.27%</td>
+<td>98.35</td>
+<td>14.17%</td>
+<td><span class="badge n">正常</span></td>
+<td>93.86</td>
+<td>19.64%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>5</td>
+<td>301269</td>
+<td style="text-align:left">华大九天</td>
+<td>94.69</td>
+<td class="up">0.31%</td>
+<td>91.76</td>
+<td>3.19%</td>
+<td><span class="badge n">正常</span></td>
+<td>90.33</td>
+<td>4.83%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>6</td>
+<td>603125</td>
+<td style="text-align:left">常青科技</td>
+<td>23.53</td>
+<td class="up">2.30%</td>
+<td>21.90</td>
+<td>7.42%</td>
+<td><span class="badge n">正常</span></td>
+<td>21.06</td>
+<td>11.74%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>7</td>
+<td>688521</td>
+<td style="text-align:left">芯原股份</td>
+<td>230.50</td>
+<td class="up">6.14%</td>
+<td>210.80</td>
+<td>9.34%</td>
+<td><span class="badge n">正常</span></td>
+<td>203.92</td>
+<td>13.03%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>8</td>
+<td>000725</td>
+<td style="text-align:left">京东方Ａ</td>
+<td>6.07</td>
+<td class="up">1.85%</td>
+<td>5.81</td>
+<td>4.48%</td>
+<td><span class="badge n">正常</span></td>
+<td>5.72</td>
+<td>6.16%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>9</td>
+<td>688106</td>
+<td style="text-align:left">金宏气体</td>
+<td>30.39</td>
+<td class="up">1.47%</td>
+<td>28.16</td>
+<td>7.93%</td>
+<td><span class="badge n">正常</span></td>
+<td>27.89</td>
+<td>8.98%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>10</td>
+<td>603893</td>
+<td style="text-align:left">瑞芯微</td>
+<td>205.32</td>
+<td class="up">1.14%</td>
+<td>196.13</td>
+<td>4.69%</td>
+<td><span class="badge n">正常</span></td>
+<td>197.19</td>
+<td>4.12%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>11</td>
+<td>002192</td>
+<td style="text-align:left">融捷股份</td>
+<td>69.49</td>
+<td class="up">3.79%</td>
+<td>65.98</td>
+<td>5.32%</td>
+<td><span class="badge n">正常</span></td>
+<td>64.94</td>
+<td>7.01%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>12</td>
+<td>688798</td>
+<td style="text-align:left">艾为电子</td>
+<td>56.22</td>
+<td class="up">0.70%</td>
+<td>55.60</td>
+<td>1.12%</td>
+<td><span class="badge n">正常</span></td>
+<td>54.62</td>
+<td>2.94%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>13</td>
+<td>002738</td>
+<td style="text-align:left">中矿资源</td>
+<td>53.14</td>
+<td class="up">0.36%</td>
+<td>50.95</td>
+<td>4.29%</td>
+<td><span class="badge n">正常</span></td>
+<td>49.43</td>
+<td>7.50%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>14</td>
+<td>688981</td>
+<td style="text-align:left">中芯国际</td>
+<td>128.50</td>
+<td class="up">3.50%</td>
+<td>123.14</td>
+<td>4.35%</td>
+<td><span class="badge n">正常</span></td>
+<td>127.41</td>
+<td>0.86%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>15</td>
+<td>688268</td>
+<td style="text-align:left">华特气体</td>
+<td>155.60</td>
+<td class="up">2.98%</td>
+<td>139.10</td>
+<td>11.86%</td>
+<td><span class="badge n">正常</span></td>
+<td>139.16</td>
+<td>11.81%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="one">
+<td>16</td>
+<td>688825</td>
+<td style="text-align:left">长鑫科技</td>
+<td>52.48</td>
+<td class="up">1.00%</td>
+<td>53.75</td>
+<td>-2.36%</td>
+<td><span class="badge y">破线</span></td>
+<td>52.45</td>
+<td>0.05%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>17</td>
+<td>688110</td>
+<td style="text-align:left">东芯股份</td>
+<td>115.98</td>
+<td class="up">3.65%</td>
+<td>107.34</td>
+<td>8.05%</td>
+<td><span class="badge n">正常</span></td>
+<td>106.90</td>
+<td>8.49%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>18</td>
+<td>159206</td>
+<td style="text-align:left">卫星ETF永赢</td>
+<td>1.45</td>
+<td class="up">3.58%</td>
+<td>1.36</td>
+<td>6.10%</td>
+<td><span class="badge n">正常</span></td>
+<td>1.31</td>
+<td>10.53%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>19</td>
+<td>603986</td>
+<td style="text-align:left">兆易创新</td>
+<td>417.05</td>
+<td class="up">8.32%</td>
+<td>376.85</td>
+<td>10.67%</td>
+<td><span class="badge n">正常</span></td>
+<td>382.26</td>
+<td>9.10%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="both">
+<td>20</td>
+<td>002594</td>
+<td style="text-align:left">比亚迪</td>
+<td>90.04</td>
+<td class="up">0.66%</td>
+<td>91.18</td>
+<td>-1.25%</td>
+<td><span class="badge y">破线</span></td>
+<td>92.70</td>
+<td>-2.87%</td>
+<td><span class="badge y">破线</span></td>
+</tr>
+<tr class="">
+<td>21</td>
+<td>hk02498</td>
+<td style="text-align:left">速腾聚创</td>
+<td>23.70</td>
+<td class="up">2.86%</td>
+<td>23.56</td>
+<td>0.61%</td>
+<td><span class="badge n">正常</span></td>
+<td>23.04</td>
+<td>2.87%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+<tr class="">
+<td>22</td>
+<td>688270</td>
+<td style="text-align:left">ST臻镭</td>
+<td>69.10</td>
+<td class="up">4.70%</td>
+<td>64.92</td>
+<td>6.44%</td>
+<td><span class="badge n">正常</span></td>
+<td>62.49</td>
+<td>10.57%</td>
+<td><span class="badge n">正常</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="foot">说明：MA5/MA10 基于前复权日K收盘价；交易时段内均线并入实时价（与行情软件盘中均线口径一致）。“破线”= 现价低于对应均线；上市不足 5/10 个交易日的股票不参与对应比例统计。数据源：腾讯行情（备用：东方财富），仅供研究参考，不构成投资建议。<br>此页面每 60 秒自动刷新；定时监控由 scheduler.py / launchd 在交易日 10:30、14:30 生成最新快照。</div>
+<script>
+document.getElementById("refreshBtn").addEventListener("click", function(){location.reload()});
+setTimeout(function(){location.reload()}, 60000);
+</script>
+</body>
+</html>
