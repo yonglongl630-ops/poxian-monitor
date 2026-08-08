@@ -37,13 +37,19 @@ jobs:
       - name: 注入推送密钥（可选，配置 SERVERCHAN_KEY 后生效）
         env:
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          BARK_KEY: ${{ secrets.BARK_KEY }}
         run: |
           python3 - <<'PY'
           import json, os
-          key = os.environ.get('SERVERCHAN_KEY', '')
-          if key:
-              cfg = json.load(open('config.workflow.json', encoding='utf-8'))
-              cfg.setdefault('push', {})['serverchan_key'] = key
+          cfg = json.load(open('config.workflow.json', encoding='utf-8'))
+          sc = os.environ.get('SERVERCHAN_KEY', '')
+          bk = os.environ.get('BARK_KEY', '')
+          if sc or bk:
+              push = cfg.setdefault('push', {})
+              if sc:
+                  push['serverchan_key'] = sc
+              if bk:
+                  push['bark_key'] = bk
               json.dump(cfg, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
           PY
 

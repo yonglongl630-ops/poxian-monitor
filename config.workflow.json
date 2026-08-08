@@ -28,6 +28,7 @@
   "thresholds": [70, 80],
   "check_times": ["10:30", "14:30"],
   "notify_on_hit": false,
+  "push_on_every_run": true,
   "push": {
     "serverchan_key": "",
     "bark_key": "",

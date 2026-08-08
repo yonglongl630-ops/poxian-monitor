@@ -505,13 +505,22 @@ def run(config_path, notify_enabled):
     log(f"监控表已生成：{DASHBOARD_HTML}")
 
     hit_keys = [k for k, v in flags.items() if v]
-    if hit_keys:
-        message = "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
-        detail = f"{message}（破5日线 {fmt(m5['pct'])}%，破10日线 {fmt(m10['pct'])}%）"
-        if notify_enabled and config.get("notify_on_hit", True):
+    push_every = config.get("push_on_every_run", False)
+    if hit_keys or push_every:
+        if hit_keys:
+            title = "破线监控预警"
+            detail = "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
+            detail += f"（破5日线 {fmt(m5['pct'])}%，破10日线 {fmt(m10['pct'])}%）"
+        else:
+            title = "破线监控"
+            detail = (
+                f"破5日线 {m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%），"
+                f"破10日线 {m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%），未触发阈值"
+            )
+        if hit_keys and notify_enabled and config.get("notify_on_hit", True):
             notify("破线监控预警", detail)
             log("已发送系统通知")
-        for r in notify.send_push(config, "破线监控预警", detail):
+        for r in notify.send_push(config, title, detail):
             log(f"手机推送：{r}")
     return 0
 
