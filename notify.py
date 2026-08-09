@@ -86,21 +86,43 @@ def _feishu_sign(secret):
 DEFAULT_DASHBOARD_URL = "https://yonglongl630-ops.github.io/poxian-monitor/"
 
 
-def _feishu(webhook, title, message, secret=None, dashboard_url=DEFAULT_DASHBOARD_URL):
-    """飞书群机器人 Webhook 直接推送：富文本 + 监控大屏链接 + 自动 @所有人。"""
-    content = []
-    for line in (message or "").splitlines() or [""]:
-        if line:
-            content.append({"tag": "text", "text": line})
-        content.append({"tag": "text", "text": "\n"})
+def _feishu(webhook, title, message, secret=None, dashboard_url=DEFAULT_DASHBOARD_URL, bold_lines=None):
+    """飞书群机器人 Webhook 直接推送：交互卡片（加粗 + 大屏按钮 + 自动 @所有人）。
+
+    飞书自定义机器人的 post 富文本不支持加粗，改用 interactive 卡片：
+    lark_md 支持 **加粗**，按钮可直接打开监控大屏，末尾 <at id=all> @所有人。
+    bold_lines：需要加粗的整行文本列表（用于把"景气/收息"等分组段落加粗）。
+    """
+    bold_lines = set(bold_lines or [])
+    md_lines = []
+    for line in (message or "").splitlines():
+        if not line:
+            continue
+        md_lines.append(f"**{line}**" if line in bold_lines else line)
+    md_text = "\n".join(md_lines) + "\n<at id=all></at>"
+    template = "red" if "预警" in (title or "") else "blue"
+    elements = [{"tag": "div", "text": {"tag": "lark_md", "content": md_text}}]
     if dashboard_url:
-        content.append({"tag": "text", "text": "📊 实时监控大屏："})
-        content.append({"tag": "a", "text": "点击查看", "href": dashboard_url})
-        content.append({"tag": "text", "text": "\n"})
-    content.append({"tag": "at", "user_id": "all"})
+        elements.append(
+            {
+                "tag": "action",
+                "actions": [
+                    {
+                        "tag": "button",
+                        "text": {"tag": "plain_text", "content": "📊 查看监控大屏"},
+                        "type": "primary",
+                        "url": dashboard_url,
+                    }
+                ],
+            }
+        )
     payload = {
-        "msg_type": "post",
-        "content": {"post": {"zh-CN": {"title": title, "content": [content]}}},
+        "msg_type": "interactive",
+        "card": {
+            "config": {"wide_screen_mode": True},
+            "header": {"template": template, "title": {"tag": "plain_text", "content": title}},
+            "elements": elements,
+        },
     }
     if secret:
         timestamp, sign = _feishu_sign(secret)
@@ -141,8 +163,11 @@ def _email(cfg, title, message):
     return f"邮件推送成功（{len(to)} 个收件人）"
 
 
-def send_push(config, title, message):
-    """按配置推送，返回各渠道结果列表（未配置的渠道自动跳过）。"""
+def send_push(config, title, message, bold_lines=None):
+    """按配置推送，返回各渠道结果列表（未配置的渠道自动跳过）。
+
+    bold_lines 仅对飞书富文本生效：这些整行文本会加粗（如各分组段落）。
+    """
     push = (config or {}).get("push") or {}
     results = []
     if push.get("serverchan_key"):
@@ -166,6 +191,7 @@ def send_push(config, title, message):
                     message,
                     secret=push.get("feishu_secret") or None,
                     dashboard_url=push.get("dashboard_url") or DEFAULT_DASHBOARD_URL,
+                    bold_lines=bold_lines,
                 )
             )
         except Exception as exc:
