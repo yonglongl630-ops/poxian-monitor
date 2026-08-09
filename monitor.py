@@ -40,6 +40,7 @@ THRESHOLD_NAMES = {
     "ma10_70": "破10日线 ≥ 70%",
     "ma10_80": "破10日线 ≥ 80%",
 }
+THRESHOLD_KEYS = list(THRESHOLD_NAMES.keys())
 
 _print_lock = threading.Lock()
 
@@ -190,6 +191,8 @@ def load_history(limit=60):
             summary = overall.get("summary") or data.get("summary") or {}
             entry = {
                 "time": data.get("generated_at", ""),
+                "date": data.get("date", ""),
+                "is_trading_day": bool(data.get("is_trading_day")),
                 "pct5": (summary.get("ma5") or {}).get("pct"),
                 "pct10": (summary.get("ma10") or {}).get("pct"),
                 "groups": {},
@@ -199,9 +202,51 @@ def load_history(limit=60):
                 entry["groups"][name] = {
                     "pct5": (gs.get("ma5") or {}).get("pct"),
                     "pct10": (gs.get("ma10") or {}).get("pct"),
+                    "thresholds": dict(g.get("thresholds") or {}),
                 }
             entries.append(entry)
     return entries[-limit:]
+
+
+def compute_trigger_days(history):
+    """按分组统计每个阈值项在交易日内的累计触发天数与连续触发天数。
+
+    只统计 is_trading_day 为 True 的快照；同一交易日有多次快照时以最后一次为准。
+    返回 {group: {key: {"streak": int, "cum": int}}}。
+    """
+    tdates = sorted({e["date"] for e in history if e.get("is_trading_day") and e.get("date")})
+    result = {}
+    for entry in history:
+        if not entry.get("is_trading_day"):
+            continue
+        date = entry.get("date")
+        if not date:
+            continue
+        for gname, g in (entry.get("groups") or {}).items():
+            th = g.get("thresholds") or {}
+            per = result.setdefault(gname, {})
+            for key in THRESHOLD_KEYS:
+                item = per.setdefault(key, {"hit_by_date": {}, "hit_dates": set()})
+                item["hit_by_date"][date] = bool(th.get(key))
+                if th.get(key):
+                    item["hit_dates"].add(date)
+
+    out = {}
+    for gname, per in result.items():
+        out[gname] = {}
+        for key in THRESHOLD_KEYS:
+            item = per.get(key)
+            if not item:
+                out[gname][key] = {"streak": 0, "cum": 0}
+                continue
+            cum = len(item["hit_dates"])
+            streak = 0
+            for date in reversed(tdates):
+                if not item["hit_by_date"].get(date):
+                    break
+                streak += 1
+            out[gname][key] = {"streak": streak, "cum": cum}
+    return out
 
 
 def fmt(v, nd=2):
@@ -341,7 +386,7 @@ def render_rows(stocks):
     return "\n".join(rows)
 
 
-def render_bars(groups_meta):
+def render_bars(groups_meta, trigger_days=None):
     """总览：每个分组的破5/破10比例 100% 条。groups_meta: [(name, summary), ...]"""
     items = []
     for name, summary in groups_meta:
@@ -350,11 +395,17 @@ def render_bars(groups_meta):
             pct = sm["pct"]
             val = pct if pct is not None else 0
             cls = pct_color(pct)
+            info = (trigger_days or {}).get(name, {}).get(f"ma{period}_70") or {}
+            streak = info.get("streak") or 0
+            days = (
+                f'<span class="bar-days">≥70% 连续{streak}个交易日</span>'
+                if streak else ""
+            )
             items.append(
                 f"""<div class="bar-item">
 <div class="bar-label"><span>{html.escape(name)} · {label}</span>
 <span class="bar-val {cls}">{fmt(pct)}%</span>
-<span class="bar-num">{sm['below']}/{sm['valid']} 只</span></div>
+<span class="bar-num">{sm['below']}/{sm['valid']} 只</span>{days}</div>
 <div class="bar-track">
 <div class="bar-fill {cls}" style="width:{min(val, 100):.2f}%"></div>
 <div class="bar-mark" style="left:70%"><i></i><em>70%</em></div>
@@ -364,7 +415,7 @@ def render_bars(groups_meta):
     return f'<div class="bars"><h2>破线比例一览（0-100%）</h2>{"".join(items)}</div>'
 
 
-def render_group_panel(name, group_data, thresholds):
+def render_group_panel(name, group_data, thresholds, trigger_days=None):
     summary = group_data["summary"]
     m5, m10 = summary["ma5"], summary["ma10"]
     stocks = group_data["stocks"]
@@ -382,10 +433,38 @@ def render_group_panel(name, group_data, thresholds):
         f'<div class="num {c10}">{m10["below"]}<span style="font-size:15px;color:var(--muted)"> / {m10["valid"]} 只</span></div>'
         f'<div class="sub">比例：{fmt(m10["pct"])}%　阈值 ≥70% / ≥80%</div></div>',
     ]
+
+    def days_info(key):
+        return (trigger_days or {}).get(name, {}).get(key) or {}
+
+    def chip_label(key, hit):
+        if not hit:
+            return "未触发"
+        streak = days_info(key).get("streak") or 0
+        return f"已触发 · 连续{streak}个交易日" if streak else "已触发"
+
     chips = "".join(
-        f'<span class="chip {"hit" if thresholds[k] else ""}">{name2}：'
-        f'{"已触发" if thresholds[k] else "未触发"}</span>'
+        f'<span class="chip {"hit" if thresholds[k] else ""}">{name2}：{chip_label(k, thresholds[k])}</span>'
         for k, name2 in THRESHOLD_NAMES.items()
+    )
+
+    def days_row(key, label):
+        info = days_info(key)
+        streak = info.get("streak") or 0
+        cum = info.get("cum") or 0
+        return (
+            f'<div class="trig-row"><span>{label}</span>'
+            f'<span class="{"red" if streak else ""}">连续 <b>{streak}</b> 天</span>'
+            f'<span class="trig-cum">累计 {cum} 天</span></div>'
+        )
+
+    cards.append(
+        '<div class="card"><div class="label">破线触发天数（交易日）</div>'
+        + days_row("ma5_70", "破5日线 ≥70%")
+        + days_row("ma5_80", "破5日线 ≥80%")
+        + days_row("ma10_70", "破10日线 ≥70%")
+        + days_row("ma10_80", "破10日线 ≥80%")
+        + "</div>"
     )
     rows = render_rows(stocks)
     table = (
@@ -410,6 +489,7 @@ def render_dashboard(snapshot, history):
     o_summary = overall.get("summary") or {}
     flags = overall.get("thresholds") or {}
     total = overall.get("total") or 0
+    trigger_days = compute_trigger_days(history)
 
     hit_keys = [k for k, v in flags.items() if v]
     if hit_keys:
@@ -428,12 +508,12 @@ def render_dashboard(snapshot, history):
     groups_meta = [(name, groups[name]["summary"]) for name in group_names if name in groups]
     overview = (
         '<div id="tab-overview" class="tab-panel">'
-        f'{render_bars(groups_meta)}'
+        f'{render_bars(groups_meta, trigger_days)}'
         f'{render_history_chart(history, group_names)}'
         "</div>"
     )
     panels = "".join(
-        render_group_panel(name, groups[name], groups[name]["thresholds"])
+        render_group_panel(name, groups[name], groups[name]["thresholds"], trigger_days)
         for name in group_names
         if name in groups
     )
@@ -494,6 +574,7 @@ border:1px solid var(--border);background:var(--card);color:var(--muted)}
 .bar-label{display:flex;gap:10px;align-items:baseline;font-size:13px;margin-bottom:6px}
 .bar-label .bar-val{font-weight:700;font-size:15px}
 .bar-label .bar-num{color:var(--muted);font-size:12px}
+.bar-days{color:var(--orange);font-size:12px}
 .bar-val.red{color:var(--red)}.bar-val.orange{color:var(--orange)}.bar-val.green{color:var(--green)}
 .bar-track{position:relative;height:18px;background:#0b1020;border:1px solid var(--border);border-radius:9px;overflow:visible}
 .bar-fill{position:absolute;top:0;left:0;bottom:0;border-radius:9px;background:var(--green);opacity:.85}
@@ -502,6 +583,11 @@ border:1px solid var(--border);background:var(--card);color:var(--muted)}
 .bar-mark{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1px dashed var(--muted)}
 .bar-mark i{display:block}
 .bar-mark em{position:absolute;top:-16px;left:-10px;font-style:normal;color:var(--muted);font-size:10px}
+.trig-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+font-size:13px;color:var(--muted);margin-top:7px}
+.trig-row .red{color:var(--red)}
+.trig-row b{font-size:17px;font-weight:700;color:var(--text)}
+.trig-cum{color:var(--muted);font-size:12px}
 .chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
 .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:14px}

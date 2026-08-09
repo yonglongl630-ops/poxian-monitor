@@ -61,17 +61,25 @@ jobs:
       - name: 注入推送密钥（可选，配置 SERVERCHAN_KEY 后生效）
         env:
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          SERVERCHAN_CHANNEL: ${{ secrets.SERVERCHAN_CHANNEL }}
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
           BARK_KEY: ${{ secrets.BARK_KEY }}
         run: |
           python3 - <<'PY'
           import json, os
           cfg = json.load(open('config.workflow.json', encoding='utf-8'))
           sc = os.environ.get('SERVERCHAN_KEY', '')
+          ch = os.environ.get('SERVERCHAN_CHANNEL', '')
+          fw = os.environ.get('FEISHU_WEBHOOK', '')
           bk = os.environ.get('BARK_KEY', '')
-          if sc or bk:
+          if sc or ch or fw or bk:
               push = cfg.setdefault('push', {})
               if sc:
                   push['serverchan_key'] = sc
+              if ch:
+                  push['serverchan_channel'] = ch
+              if fw:
+                  push['feishu_webhook'] = fw
               if bk:
                   push['bark_key'] = bk
               json.dump(cfg, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)

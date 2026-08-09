@@ -10,8 +10,9 @@
 - 汇总统计：各分组 + 总体的破 5 日线数量/比例、破 10 日线数量/比例
 - 总览视图：4 项破线比例 100% 条（景气/收息 × 破5/破10），含 70%/80% 阈值刻度
 - 趋势识别：各分组破线比例随时间变化的走势对比图
+- 触发天数：各分组 4 项阈值分别展示"连续触发交易日数"与"累计触发交易日数"（仅统计交易日）
 - 阈值预警：破 5 日线 ≥70%、≥80%；破 10 日线 ≥70%、≥80%（触发时发送 macOS 系统通知）
-- 手机推送：阈值触发时推送到微信 / iOS / 邮箱（Server酱 / Bark / SMTP）
+- 手机推送：阈值触发时推送到微信 / 飞书群（@所有人）/ iOS / 邮箱（Server酱 / 飞书机器人 / Bark / SMTP）
 - 监控表：`output/dashboard.html`（自刷新），数据快照 `output/latest.json`，历史 `output/history.jsonl`
 - 手机网页访问：`python3 serve.py` 启动网页服务，手机/其他设备随时查看
 - 交易日自动跳过节假日（以上证指数当日是否有K线判断）
@@ -101,6 +102,8 @@ bash uninstall_launchd.sh   # 卸载
 ```json
 "push": {
   "serverchan_key": "SCTxxxxxxxxxxxxxxxx",   // 微信推送：sct.ftqq.com 扫码登录获取
+  "serverchan_channel": "飞书群",            // 可选：sct.ftqq.com/forward 添加的通道名（转发到飞书群等）
+  "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",  // 可选：飞书群机器人 Webhook，自动@所有人
   "bark_key": "xxxxxxxxxxxxxxxx",            // iOS 推送：App Store 安装 Bark 后获取
   "email": {
     "smtp_host": "smtp.qq.com",
@@ -118,7 +121,15 @@ bash uninstall_launchd.sh   # 卸载
 python3 notify.py
 ```
 
-配置后，每次阈值触发（70%/80%）都会自动推送到手机。
+配置后，每次阈值触发（70%/80%）都会自动推送。默认**不推送常规汇总**（`push_on_every_run: false`），
+只有触发阈值时才推送，避免每天 10:30/14:30 打扰。
+
+**飞书群 @所有人 两种方式：**
+
+- 方式 A（Server酱转发）：在 <https://sct.ftqq.com/forward> 添加"飞书群机器人"通道，
+  把通道名填入 `serverchan_channel`，推送经 Server酱转发到飞书群；
+- 方式 B（飞书机器人直推）：在飞书群里添加自定义机器人，把 Webhook 地址填入 `feishu_webhook`，
+  推送直接发到飞书群并自动 @所有人。两个方式可同时配置，也可以只用其中一个。
 
 ### 方式 2：手机网页实时监控
 
@@ -175,9 +186,14 @@ https://你的用户名.github.io/poxian-monitor/
 7. 可选：云端自动跟随客户端分组。仓库 **Settings → Secrets and variables → Actions →
    ** New repository secret，Name 填 `THS_COOKIE`，Value 填你本地 `config.json` 里
    `ths_cookie` 的整串值。之后每次云端运行都会先同步你同花顺客户端的最新分组。
-8. 可选：云端直接推微信。仓库 **Settings → Secrets and variables → Actions →
-   New repository secret**，Name 填 `SERVERCHAN_KEY`，Value 填你的 Server酱 SendKey。
-   之后每次触发 70%/80% 阈值，云端会直接推送微信，与 Mac 无关。
+8. 可选：云端推送（触发 70%/80% 阈值时）。仓库 **Settings → Secrets and variables → Actions →
+   New repository secret**，可依次添加：
+   - `SERVERCHAN_KEY`：Server酱 SendKey（微信推送，或配合通道转发飞书群）
+   - `SERVERCHAN_CHANNEL`：sct.ftqq.com/forward 里配置的通道名（转发到飞书群等）
+   - `FEISHU_WEBHOOK`：飞书群机器人 Webhook（直接推送并 @所有人）
+   - `BARK_KEY`：Bark 的 Key（iOS 推送）
+   之后每次触发阈值，云端会自动推送，与 Mac 无关。默认不推送常规汇总，如需每天
+   10:30/14:30 也推送，可在仓库里修改 `config.workflow.json` 的 `push_on_every_run` 为 `true`。
 
 > 隐私提醒：公开仓库意味着自选股与监控数据对公网可见。若需私有 + 公网访问，
 > 需 GitHub Pro（约 $4/月）或改用云服务器方案。
