@@ -10,6 +10,7 @@
     "serverchan_channel": "飞书群",               # 可选：sct.ftqq.com/forward 配置的通道名（转发到飞书群等）
     "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",  # 可选：飞书群机器人Webhook（直接@所有人）
     "feishu_secret": "创建机器人时开启签名校验得到的Sign Secret",  # 可选：机器人开启了签名校验时必填
+    "dashboard_url": "https://yonglongl630-ops.github.io/poxian-monitor/",  # 可选：飞书消息里的监控大屏链接
     "bark_key": "Bark 设备的 Key",                # 推送到 iOS
     "email": {
       "smtp_host": "smtp.qq.com",
@@ -82,12 +83,24 @@ def _feishu_sign(secret):
     return timestamp, sign
 
 
-def _feishu(webhook, title, message, secret=None):
-    """飞书群机器人 Webhook 直接推送，自动 @所有人。"""
+DEFAULT_DASHBOARD_URL = "https://yonglongl630-ops.github.io/poxian-monitor/"
+
+
+def _feishu(webhook, title, message, secret=None, dashboard_url=DEFAULT_DASHBOARD_URL):
+    """飞书群机器人 Webhook 直接推送：富文本 + 监控大屏链接 + 自动 @所有人。"""
+    content = []
+    for line in (message or "").splitlines() or [""]:
+        if line:
+            content.append({"tag": "text", "text": line})
+        content.append({"tag": "text", "text": "\n"})
+    if dashboard_url:
+        content.append({"tag": "text", "text": "📊 实时监控大屏："})
+        content.append({"tag": "a", "text": "点击查看", "href": dashboard_url})
+        content.append({"tag": "text", "text": "\n"})
+    content.append({"tag": "at", "user_id": "all"})
     payload = {
-        "msg_type": "text",
-        "content": {"text": f"[{title}]\n{message}"},
-        "at": {"at_all": True},
+        "msg_type": "post",
+        "content": {"post": {"zh-CN": {"title": title, "content": [content]}}},
     }
     if secret:
         timestamp, sign = _feishu_sign(secret)
@@ -152,6 +165,7 @@ def send_push(config, title, message):
                     title,
                     message,
                     secret=push.get("feishu_secret") or None,
+                    dashboard_url=push.get("dashboard_url") or DEFAULT_DASHBOARD_URL,
                 )
             )
         except Exception as exc:

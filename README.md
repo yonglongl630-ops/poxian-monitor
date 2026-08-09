@@ -105,6 +105,7 @@ bash uninstall_launchd.sh   # 卸载
   "serverchan_channel": "飞书群",            // 可选：sct.ftqq.com/forward 添加的通道名（转发到飞书群等）
   "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",  // 可选：飞书群机器人 Webhook，自动@所有人
   "feishu_secret": "机器人开启签名校验时填 Sign Secret",  // 可选：未开启签名校验可留空
+  "dashboard_url": "https://你的用户名.github.io/poxian-monitor/",  // 可选：飞书消息里附带的监控大屏链接
   "bark_key": "xxxxxxxxxxxxxxxx",            // iOS 推送：App Store 安装 Bark 后获取
   "email": {
     "smtp_host": "smtp.qq.com",
@@ -132,6 +133,8 @@ python3 notify.py
 - 方式 B（飞书机器人直推）：在飞书群里添加自定义机器人，把 Webhook 地址填入 `feishu_webhook`，
   推送直接发到飞书群并自动 @所有人。如果创建机器人时勾选了"签名校验"，需要把对应的
   **Sign Secret** 填入 `feishu_secret`，否则飞书会返回 `code 19021 sign match fail`。
+  飞书消息会以富文本展示，末尾附带"📊 实时监控大屏"链接（指向 `dashboard_url`，默认你的
+  GitHub Pages 地址），点击即可在手机打开实时监控表。
   两个方式可同时配置，也可以只用其中一个。
 
 ### 方式 2：手机网页实时监控

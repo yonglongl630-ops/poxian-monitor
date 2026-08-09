@@ -76,6 +76,7 @@
     "serverchan_channel": "",
     "feishu_webhook": "",
     "feishu_secret": "",
+    "dashboard_url": "https://yonglongl630-ops.github.io/poxian-monitor/",
     "bark_key": "",
     "email": {
       "smtp_host": "",
