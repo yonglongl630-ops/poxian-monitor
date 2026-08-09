@@ -150,7 +150,7 @@ def build_push_text(group_data, overall_summary, overall_flags, max_list=8):
 
     数字与监控表共用同一份 group_data / overall_summary，确保文字和页面一致；
     名单可逐只核对，防止只看比例产生误解。返回 (title, detail, group_lines)，
-    group_lines 为各分组的行文本（用于飞书里加粗展示）。
+    group_lines 为各分组汇总行的文本（用于飞书里加粗展示；个股名单不加粗）。
     """
     m5, m10 = overall_summary["ma5"], overall_summary["ma10"]
     hit_keys = [k for k, v in overall_flags.items() if v]
@@ -184,7 +184,6 @@ def build_push_text(group_data, overall_summary, overall_flags, max_list=8):
             extra = f" 等 {len(names)} 只" if len(names) > max_list else ""
             line = f"　破{period}：{'、'.join(shown)}{extra}"
             detail += "\n" + line
-            group_lines.append(line)
     return title, detail, group_lines
 
 
