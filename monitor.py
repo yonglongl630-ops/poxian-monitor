@@ -3,9 +3,10 @@
 """
 破线监控主程序
 ==============
-读取 config.json 中的自选股，拉取实时行情与前复权日K，
-计算 5 日 / 10 日均线破线（现价低于均线）数量与比例，
-判断 70% / 80% 阈值是否触发，生成监控表 output/dashboard.html 及数据快照。
+支持多个自选股分组（如"景气""收息"）独立监控：
+- 每个分组独立统计破 5 日 / 10 日线数量与比例，判断 70% / 80% 阈值
+- 生成监控表 output/dashboard.html：总览（4 项破线比例 100% 条 + 趋势）+ 各分组独立板块
+- 数据快照 output/latest.json、历史 output/history.jsonl
 
 用法：
     python3 monitor.py                 # 按 config.json 执行一次
@@ -21,6 +22,7 @@ import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+
 import zoneinfo
 
 import notify
@@ -73,6 +75,15 @@ def normalize_codes(watchlist):
     return codes
 
 
+def load_groups(config):
+    """从配置读取分组（名称 -> 代码列表）；无分组时回退为单个"全部"分组。"""
+    groups = config.get("groups") or {}
+    if not groups:
+        codes = normalize_codes(config.get("watchlist") or [])
+        return {"全部": codes} if codes else {}
+    return {name: normalize_codes(codes) for name, codes in groups.items()}
+
+
 def compute_ma(closes, period):
     if len(closes) < period:
         return None
@@ -86,7 +97,7 @@ def analyze_stock(code, quote, kline, now=None):
     price = quote["price"]
     closes = [b["close"] for b in kline if b.get("close") is not None]
     if stock_data.market_in_session(now):
-        if closes and kline[-1]["date"] == today:
+        if closes and kline and kline[-1]["date"] == today:
             closes[-1] = price
         else:
             closes.append(price)
@@ -133,7 +144,18 @@ def check_thresholds(summary, thresholds):
     return flags
 
 
-def notify(title, message):
+def sort_stocks(stocks):
+    def rank(s):
+        b5, b10 = s["below5"], s["below10"]
+        return (
+            0 if (b5 and b10) else 1 if (b5 or b10) else 2,
+            s["dist5"] if s["dist5"] is not None else 999,
+        )
+
+    return sorted(stocks, key=rank)
+
+
+def mac_notify(title, message):
     """macOS 系统通知（失败静默）。"""
     msg = message.replace("\\", "\\\\").replace('"', '\\"')
     script = f'display notification "{msg}" with title "{title}"'
@@ -164,14 +186,21 @@ def load_history(limit=60):
                 data = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            summary = data.get("summary", {})
-            entries.append(
-                {
-                    "time": data.get("generated_at", ""),
-                    "pct5": (summary.get("ma5") or {}).get("pct"),
-                    "pct10": (summary.get("ma10") or {}).get("pct"),
+            overall = data.get("overall") or {}
+            summary = overall.get("summary") or data.get("summary") or {}
+            entry = {
+                "time": data.get("generated_at", ""),
+                "pct5": (summary.get("ma5") or {}).get("pct"),
+                "pct10": (summary.get("ma10") or {}).get("pct"),
+                "groups": {},
+            }
+            for name, g in (data.get("groups") or {}).items():
+                gs = g.get("summary") or {}
+                entry["groups"][name] = {
+                    "pct5": (gs.get("ma5") or {}).get("pct"),
+                    "pct10": (gs.get("ma10") or {}).get("pct"),
                 }
-            )
+            entries.append(entry)
     return entries[-limit:]
 
 
@@ -189,13 +218,14 @@ def pct_color(pct):
     return "green"
 
 
-def render_history_chart(history):
+def render_history_chart(history, group_names):
+    """破线比例趋势：每个分组的破5/破10比例各一条线。"""
     if len(history) < 2:
         return (
             '<div class="chart-box"><h2>破线比例走势</h2>'
             '<p style="color:var(--muted);font-size:13px">暂无走势数据，下次监控后显示。</p></div>'
         )
-    W, H, pad_l, pad_r, pad_t, pad_b = 820, 250, 44, 14, 18, 26
+    W, H, pad_l, pad_r, pad_t, pad_b = 820, 280, 44, 14, 18, 26
     n = len(history)
     x_step = (W - pad_l - pad_r) / max(n - 1, 1)
 
@@ -204,14 +234,46 @@ def render_history_chart(history):
         y = pad_t + (H - pad_t - pad_b) * (1 - min(max(value, 0), ymax) / ymax)
         return x, y
 
+    palette = {0: "#3b82f6", 1: "#f59e0b", 2: "#22c55e", 3: "#a855f7"}
     marks = []
-    for key, color in (("pct5", "#3b82f6"), ("pct10", "#f59e0b")):
-        pts = [xy(i, h[key]) for i, h in enumerate(history) if h.get(key) is not None]
-        if len(pts) >= 2:
-            d = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
-            marks.append(f'<path d="{d}" fill="none" stroke="{color}" stroke-width="2.2"/>')
-            x, y = pts[-1]
-            marks.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.4" fill="{color}"/>')
+    legend = []
+    series = []  # (label, color, dasharray)
+    gnames = group_names or []
+    for idx, gname in enumerate(gnames):
+        color = palette[idx % len(palette)]
+        for metric, dash in (("pct5", ""), ("pct10", "6,4")):
+            label = f"{gname} 破5" if metric == "pct5" else f"{gname} 破10"
+            series.append((label, color, dash))
+            pts = [
+                xy(i, h["groups"].get(gname, {}).get(metric))
+                for i, h in enumerate(history)
+                if h["groups"].get(gname, {}).get(metric) is not None
+            ]
+            if len(pts) >= 2:
+                d = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+                marks.append(
+                    f'<path d="{d}" fill="none" stroke="{color}" stroke-width="2.2" '
+                    f'stroke-dasharray="{dash}"/>'
+                )
+                x, y = pts[-1]
+                marks.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.2" fill="{color}"/>')
+
+    # 没有分组趋势时回退到总体趋势
+    if not marks:
+        for metric, color, dash in (
+            ("pct5", "#3b82f6", ""),
+            ("pct10", "#f59e0b", "6,4"),
+        ):
+            pts = [xy(i, h.get(metric)) for i, h in enumerate(history) if h.get(metric) is not None]
+            if len(pts) >= 2:
+                d = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+                marks.append(
+                    f'<path d="{d}" fill="none" stroke="{color}" stroke-width="2.2" '
+                    f'stroke-dasharray="{dash}"/>'
+                )
+                x, y = pts[-1]
+                marks.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.2" fill="{color}"/>')
+            series.append(("总体 破5" if metric == "pct5" else "总体 破10", color, dash))
 
     refs = ""
     for v in (70, 80):
@@ -235,13 +297,17 @@ def render_history_chart(history):
         f'<text x="{pad_l}" y="{H - 7}" fill="#64748b" font-size="10">{t0}</text>'
         f'<text x="{W - pad_r}" y="{H - 7}" fill="#64748b" font-size="10" text-anchor="end">{t1}</text>'
     )
-    legend = (
-        f'<text x="{pad_l}" y="{pad_t - 8}" fill="#3b82f6" font-size="11">破5日线比例</text>'
-        f'<text x="{pad_l + 90}" y="{pad_t - 8}" fill="#f59e0b" font-size="11">破10日线比例</text>'
-    )
+    legend_items = []
+    lx = pad_l
+    for label, color, dash in series:
+        legend_items.append(
+            f'<text x="{lx}" y="{pad_t - 8}" fill="{color}" font-size="11">'
+            f'{html.escape(label)}</text>'
+        )
+        lx += 30 + len(label) * 14
     svg = (
         f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;display:block">'
-        + yaxis + refs + "".join(marks) + xaxis + legend + "</svg>"
+        + yaxis + refs + "".join(marks) + xaxis + "".join(legend_items) + "</svg>"
     )
     return f'<div class="chart-box"><h2>破线比例走势（近 {len(history)} 次监控）</h2>{svg}</div>'
 
@@ -275,22 +341,34 @@ def render_rows(stocks):
     return "\n".join(rows)
 
 
-def render_dashboard(snapshot, history):
-    summary = snapshot["summary"]
-    flags = snapshot["thresholds"]
-    total = snapshot["total"]
+def render_bars(groups_meta):
+    """总览：每个分组的破5/破10比例 100% 条。groups_meta: [(name, summary), ...]"""
+    items = []
+    for name, summary in groups_meta:
+        for period, label in ((5, "破5日线"), (10, "破10日线")):
+            sm = summary[f"ma{period}"]
+            pct = sm["pct"]
+            val = pct if pct is not None else 0
+            cls = pct_color(pct)
+            items.append(
+                f"""<div class="bar-item">
+<div class="bar-label"><span>{html.escape(name)} · {label}</span>
+<span class="bar-val {cls}">{fmt(pct)}%</span>
+<span class="bar-num">{sm['below']}/{sm['valid']} 只</span></div>
+<div class="bar-track">
+<div class="bar-fill {cls}" style="width:{min(val, 100):.2f}%"></div>
+<div class="bar-mark" style="left:70%"><i></i><em>70%</em></div>
+<div class="bar-mark" style="left:80%"><i></i><em>80%</em></div>
+</div></div>"""
+            )
+    return f'<div class="bars"><h2>破线比例一览（0-100%）</h2>{"".join(items)}</div>'
+
+
+def render_group_panel(name, group_data, thresholds):
+    summary = group_data["summary"]
     m5, m10 = summary["ma5"], summary["ma10"]
-
-    hit_keys = [k for k, v in flags.items() if v]
-    if hit_keys:
-        banner = (
-            '<div class="banner warn">⚠ 阈值触发：'
-            + "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
-            + "，请关注破线风险！</div>"
-        )
-    else:
-        banner = '<div class="banner ok">当前未触发 70% / 80% 破线阈值。</div>'
-
+    stocks = group_data["stocks"]
+    total = group_data["total"]
     c5 = pct_color(m5["pct"])
     c10 = pct_color(m10["pct"])
     cards = [
@@ -303,20 +381,66 @@ def render_dashboard(snapshot, history):
         f'<div class="card"><div class="label">破10日线（现价 &lt; MA10）</div>'
         f'<div class="num {c10}">{m10["below"]}<span style="font-size:15px;color:var(--muted)"> / {m10["valid"]} 只</span></div>'
         f'<div class="sub">比例：{fmt(m10["pct"])}%　阈值 ≥70% / ≥80%</div></div>',
-        f'<div class="card"><div class="label">市场状态</div>'
-        f'<div class="num" style="font-size:22px">{snapshot["market_status"]}</div>'
-        f'<div class="sub">{snapshot["generated_at"]}（{snapshot["is_trading_day"]}）</div></div>',
     ]
     chips = "".join(
-        f'<span class="chip {"hit" if flags[k] else ""}">{name}：'
-        f'{"已触发" if flags[k] else "未触发"}</span>'
-        for k, name in THRESHOLD_NAMES.items()
+        f'<span class="chip {"hit" if thresholds[k] else ""}">{name2}：'
+        f'{"已触发" if thresholds[k] else "未触发"}</span>'
+        for k, name2 in THRESHOLD_NAMES.items()
     )
-    rows = render_rows(snapshot["stocks"])
-    chart = render_history_chart(history)
+    rows = render_rows(stocks)
+    table = (
+        '<div class="table-wrap"><table><thead><tr>'
+        "<th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th>"
+        "<th>MA5</th><th>距MA5</th><th>破5日线</th>"
+        "<th>MA10</th><th>距MA10</th><th>破10日线</th>"
+        f"</tr></thead><tbody>{rows}</tbody></table></div>"
+    )
+    return (
+        f'<div id="tab-{html.escape(name)}" class="tab-panel" hidden>'
+        f'<h2 class="panel-title">{html.escape(name)} 分组</h2>'
+        f'<div class="cards">{"".join(cards)}</div>'
+        f'<div class="chips">{chips}</div>{table}</div>'
+    )
+
+
+def render_dashboard(snapshot, history):
+    groups = snapshot["groups"]
+    group_names = snapshot.get("group_names") or list(groups.keys())
+    overall = snapshot.get("overall") or {}
+    o_summary = overall.get("summary") or {}
+    flags = overall.get("thresholds") or {}
+    total = overall.get("total") or 0
+
+    hit_keys = [k for k, v in flags.items() if v]
+    if hit_keys:
+        banner = (
+            '<div class="banner warn">⚠ 阈值触发：'
+            + "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
+            + "，请关注破线风险！</div>"
+        )
+    else:
+        banner = '<div class="banner ok">当前未触发 70% / 80% 破线阈值。</div>'
+
+    tabs = '<button class="tab active" data-tab="overview">总览</button>'
+    for name in group_names:
+        tabs += f'<button class="tab" data-tab="{html.escape(name)}">{html.escape(name)}</button>'
+
+    groups_meta = [(name, groups[name]["summary"]) for name in group_names if name in groups]
+    overview = (
+        '<div id="tab-overview" class="tab-panel">'
+        f'{render_bars(groups_meta)}'
+        f'{render_history_chart(history, group_names)}'
+        "</div>"
+    )
+    panels = "".join(
+        render_group_panel(name, groups[name], groups[name]["thresholds"])
+        for name in group_names
+        if name in groups
+    )
     note = (
         "说明：MA5/MA10 基于前复权日K收盘价；交易时段内均线并入实时价（与行情软件盘中均线口径一致）。"
         "“破线”= 现价低于对应均线；上市不足 5/10 个交易日的股票不参与对应比例统计。"
+        "分组数据来自同花顺客户端云端自选股（景气/收息），可在客户端修改后重新同步。"
         "数据源：腾讯行情（备用：东方财富），仅供研究参考，不构成投资建议。"
     )
 
@@ -325,10 +449,9 @@ def render_dashboard(snapshot, history):
         .replace("__MARKET_STATUS__", snapshot["market_status"])
         .replace("__TOTAL__", str(total))
         .replace("__BANNER__", banner)
-        .replace("__CARDS__", "\n".join(cards))
-        .replace("__CHIPS__", chips)
-        .replace("__ROWS__", rows)
-        .replace("__CHART__", chart)
+        .replace("__TABS__", tabs)
+        .replace("__OVERVIEW_PANEL__", overview)
+        .replace("__GROUP_PANELS__", panels)
         .replace("__NOTE__", note)
     )
 
@@ -350,6 +473,11 @@ h1{font-size:22px}.meta{color:var(--muted);font-size:13px}
 .banner{padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:15px;font-weight:600}
 .banner.warn{background:rgba(239,68,68,.14);border:1px solid var(--red);color:#ff9a9a}
 .banner.ok{background:rgba(34,197,94,.12);border:1px solid var(--green);color:#7ee2a5}
+.tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px}
+.tab{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:var(--card);
+color:var(--muted);font-size:14px;font-weight:600;cursor:pointer}
+.tab.active{background:rgba(59,130,246,.15);border-color:var(--blue);color:var(--text)}
+.panel-title{font-size:16px;margin-bottom:12px;color:var(--blue)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
 .card .label{color:var(--muted);font-size:13px;margin-bottom:8px}
@@ -360,8 +488,21 @@ h1{font-size:22px}.meta{color:var(--muted);font-size:13px}
 .chip{padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;
 border:1px solid var(--border);background:var(--card);color:var(--muted)}
 .chip.hit{border-color:var(--red);color:#ff9a9a;background:rgba(239,68,68,.12)}
+.bars{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.bars h2,.chart-box h2{font-size:15px;margin-bottom:14px}
+.bar-item{margin-bottom:16px}
+.bar-label{display:flex;gap:10px;align-items:baseline;font-size:13px;margin-bottom:6px}
+.bar-label .bar-val{font-weight:700;font-size:15px}
+.bar-label .bar-num{color:var(--muted);font-size:12px}
+.bar-val.red{color:var(--red)}.bar-val.orange{color:var(--orange)}.bar-val.green{color:var(--green)}
+.bar-track{position:relative;height:18px;background:#0b1020;border:1px solid var(--border);border-radius:9px;overflow:visible}
+.bar-fill{position:absolute;top:0;left:0;bottom:0;border-radius:9px;background:var(--green);opacity:.85}
+.bar-fill.orange{background:var(--orange)}
+.bar-fill.red{background:var(--red)}
+.bar-mark{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1px dashed var(--muted)}
+.bar-mark i{display:block}
+.bar-mark em{position:absolute;top:-16px;left:-10px;font-style:normal;color:var(--muted);font-size:10px}
 .chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
-.chart-box h2{font-size:15px;margin-bottom:10px}
 .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -391,28 +532,22 @@ background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
   <button class="btn" id="refreshBtn">立即刷新</button>
 </div>
 __BANNER__
-<div class="cards">
-__CARDS__
+<div class="tabs">
+__TABS__
 </div>
-<div class="chips">
-__CHIPS__
-</div>
-__CHART__
-<div class="table-wrap">
-<table>
-<thead><tr>
-<th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th>
-<th>MA5</th><th>距MA5</th><th>破5日线</th>
-<th>MA10</th><th>距MA10</th><th>破10日线</th>
-</tr></thead>
-<tbody>
-__ROWS__
-</tbody>
-</table>
-</div>
-<div class="foot">__NOTE__<br>此页面每 60 秒自动刷新；定时监控由 scheduler.py / launchd 在交易日 10:30、14:30 生成最新快照。</div>
+__OVERVIEW_PANEL__
+__GROUP_PANELS__
+<div class="foot">__NOTE__<br>此页面每 60 秒自动刷新；定时监控由 scheduler.py / GitHub Actions 在交易日 10:30、14:30 生成最新快照。</div>
 <script>
 document.getElementById("refreshBtn").addEventListener("click", function(){location.reload()});
+document.querySelectorAll(".tab").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    document.querySelectorAll(".tab").forEach(function(b){b.classList.remove("active")});
+    document.querySelectorAll(".tab-panel").forEach(function(p){p.hidden = true});
+    btn.classList.add("active");
+    document.getElementById("tab-" + btn.dataset.tab).hidden = false;
+  });
+});
 setTimeout(function(){location.reload()}, 60000);
 </script>
 </body>
@@ -429,18 +564,29 @@ def run(config_path, notify_enabled):
     except Exception:
         tz = None
         now = datetime.now()
-    codes = normalize_codes(config.get("watchlist") or [])
-    if not codes:
-        log("自选股列表为空，请在 config.json 中配置 watchlist（或先运行 ths_sync.py 同步）")
-        return 1
+    thresholds = config.get("thresholds") or [70, 80]
 
-    log(f"开始监控：{len(codes)} 只自选股")
-    quotes = stock_data.fetch_realtime(codes)
-    log(f"实时行情获取完成：{len(quotes)}/{len(codes)} 只有效")
+    groups = load_groups(config)
+    if not groups:
+        log("未配置任何自选股分组，请在 config.json 配置 groups（或先运行 ths_client_sync.py 同步）")
+        return 1
+    all_codes = []
+    seen = set()
+    for codes in groups.values():
+        for c in codes:
+            if c not in seen:
+                seen.add(c)
+                all_codes.append(c)
+    log(f"开始监控：{len(groups)} 个分组，共 {len(all_codes)} 只去重股票")
+    for name, codes in groups.items():
+        log(f"  [{name}] {len(codes)} 只")
+
+    quotes = stock_data.fetch_realtime(all_codes)
+    log(f"实时行情获取完成：{len(quotes)}/{len(all_codes)} 只有效")
 
     klines = {}
     with ThreadPoolExecutor(max_workers=8) as pool:
-        future_map = {pool.submit(stock_data.fetch_kline, c, KLINE_DAYS): c for c in codes}
+        future_map = {pool.submit(stock_data.fetch_kline, c, KLINE_DAYS): c for c in all_codes}
         for fut in as_completed(future_map):
             code = future_map[fut]
             try:
@@ -449,16 +595,31 @@ def run(config_path, notify_enabled):
                 log(f"  [{code}] 日K获取失败：{exc}")
                 klines[code] = []
 
-    stocks, skipped = [], []
-    for code in codes:
+    analyzed = {}
+    skipped = []
+    for code in all_codes:
         quote = quotes.get(code)
         if not quote or quote.get("price") is None:
             skipped.append(code)
             continue
-        stocks.append(analyze_stock(code, quote, klines.get(code, []), now))
+        analyzed[code] = analyze_stock(code, quote, klines.get(code, []), now)
 
-    total, summary = summarize(stocks)
-    flags = check_thresholds(summary, config.get("thresholds") or [70, 80])
+    group_data = {}
+    for name, codes in groups.items():
+        stocks = [analyzed[c] for c in codes if c in analyzed]
+        stocks = sort_stocks(stocks)
+        total, summary = summarize(stocks)
+        flags = check_thresholds(summary, thresholds)
+        group_data[name] = {
+            "total": total,
+            "stocks": stocks,
+            "summary": summary,
+            "thresholds": flags,
+        }
+
+    overall_stocks = sort_stocks([analyzed[c] for c in all_codes if c in analyzed])
+    o_total, o_summary = summarize(overall_stocks)
+    o_flags = check_thresholds(o_summary, thresholds)
 
     try:
         trading = stock_data.is_trading_day_today(tz_name)
@@ -482,11 +643,14 @@ def run(config_path, notify_enabled):
         "time": now_str[11:],
         "is_trading_day": trading,
         "market_status": market_status,
-        "total": total,
-        "valid": {"ma5": summary["ma5"]["valid"], "ma10": summary["ma10"]["valid"]},
-        "summary": summary,
-        "thresholds": flags,
-        "stocks": stocks,
+        "group_names": list(groups.keys()),
+        "groups": group_data,
+        "overall": {
+            "total": o_total,
+            "stocks": overall_stocks,
+            "summary": o_summary,
+            "thresholds": o_flags,
+        },
         "skipped": skipped,
     }
     save_snapshot(snapshot)
@@ -494,31 +658,39 @@ def run(config_path, notify_enabled):
     with open(DASHBOARD_HTML, "w", encoding="utf-8") as f:
         f.write(render_dashboard(snapshot, history))
 
-    m5, m10 = summary["ma5"], summary["ma10"]
     log("=" * 52)
-    log(f"破5日线：{m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%）　阈值触发："
-        f"{'是' if flags.get('ma5_70') else '否'} (≥70%) / {'是' if flags.get('ma5_80') else '否'} (≥80%)")
-    log(f"破10日线：{m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%）　阈值触发："
-        f"{'是' if flags.get('ma10_70') else '否'} (≥70%) / {'是' if flags.get('ma10_80') else '否'} (≥80%)")
+    for name, gd in group_data.items():
+        sm = gd["summary"]
+        m5, m10 = sm["ma5"], sm["ma10"]
+        log(
+            f"[{name}] 破5日线：{m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%）　"
+            f"破10日线：{m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%）"
+        )
+    m5, m10 = o_summary["ma5"], o_summary["ma10"]
+    log(
+        f"[总体] 破5日线：{m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%）　"
+        f"破10日线：{m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%）"
+    )
     if skipped:
         log(f"以下代码未获取到行情，已跳过：{', '.join(skipped)}")
     log(f"监控表已生成：{DASHBOARD_HTML}")
 
-    hit_keys = [k for k, v in flags.items() if v]
+    hit_keys = [k for k, v in o_flags.items() if v]
     push_every = config.get("push_on_every_run", False)
     if hit_keys or push_every:
         if hit_keys:
             title = "破线监控预警"
             detail = "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
-            detail += f"（破5日线 {fmt(m5['pct'])}%，破10日线 {fmt(m10['pct'])}%）"
+            detail += f"（总体破5日线 {fmt(m5['pct'])}%，破10日线 {fmt(m10['pct'])}%）"
         else:
             title = "破线监控"
-            detail = (
-                f"破5日线 {m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%），"
-                f"破10日线 {m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%），未触发阈值"
-            )
+            detail = f"破5日线 {m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%），破10日线 {m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%），未触发阈值"
+        for name, gd in group_data.items():
+            sm = gd["summary"]
+            gm5, gm10 = sm["ma5"], sm["ma10"]
+            detail += f"\n{name}：破5 {gm5['below']}/{gm5['valid']}（{fmt(gm5['pct'])}%），破10 {gm10['below']}/{gm10['valid']}（{fmt(gm10['pct'])}%）"
         if hit_keys and notify_enabled and config.get("notify_on_hit", True):
-            notify("破线监控预警", detail)
+            mac_notify("破线监控预警", detail)
             log("已发送系统通知")
         for r in notify.send_push(config, title, detail):
             log(f"手机推送：{r}")

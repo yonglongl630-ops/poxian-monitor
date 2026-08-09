@@ -6,7 +6,10 @@
 
 - 实时行情 + 前复权日K（主：腾讯行情；备用：东方财富）
 - 破线判定：现价 < MA5 / 现价 < MA10（交易时段内均线并入实时价，与行情软件盘中口径一致）
-- 汇总统计：破 5 日线数量/比例、破 10 日线数量/比例
+- 多分组独立监控：自选股按同花顺客户端分组（如"景气""收息"）分开统计与展示
+- 汇总统计：各分组 + 总体的破 5 日线数量/比例、破 10 日线数量/比例
+- 总览视图：4 项破线比例 100% 条（景气/收息 × 破5/破10），含 70%/80% 阈值刻度
+- 趋势识别：各分组破线比例随时间变化的走势对比图
 - 阈值预警：破 5 日线 ≥70%、≥80%；破 10 日线 ≥70%、≥80%（触发时发送 macOS 系统通知）
 - 手机推送：阈值触发时推送到微信 / iOS / 邮箱（Server酱 / Bark / SMTP）
 - 监控表：`output/dashboard.html`（自刷新），数据快照 `output/latest.json`，历史 `output/history.jsonl`
@@ -50,6 +53,17 @@ python3 ths_sync.py --cookie "粘贴你的Cookie整串"
 > 注意：Cookie 属于登录凭证，包含敏感信息，请勿外传；如需更换，重新执行即可覆盖。
 > 若 Cookie 提示"未登录"，通常是因为复制时漏掉了 HttpOnly 的会话 Cookie（userid/sessionid）。
 > 建议改用方式 B-1 账号密码登录，或在 Network 面板右键请求 → Copy as cURL 后把整段命令发给我提取完整 Cookie。
+
+### 1.5 同步同花顺客户端分组（推荐）
+
+Mac 同花顺客户端的自选股分组保存在云端，可通过客户端同账号接口同步：
+
+```bash
+python3 ths_client_sync.py                # 默认同步"景气""收息"两个分组
+python3 ths_client_sync.py --groups 景气,收息,科技   # 自定义分组
+```
+
+同步结果写入 `config.json` 的 `groups` 字段；在客户端修改分组后重新运行即可。
 
 ### 2. 手动执行一次监控
 
@@ -173,12 +187,14 @@ https://你的用户名.github.io/poxian-monitor/
 | MA10 | 最近 10 个交易日收盘价（前复权）均值，交易时段内含实时价 |
 | 破线 | 现价低于对应均线 |
 | 比例 | 破线只数 ÷ 有效样本只数（上市不足 5/10 个交易日的不计入分母） |
+| 分组 | 按同花顺客户端"景气""收息"等自选股分组独立统计 |
 
 ## 配置项
 
 | 字段 | 说明 |
 | --- | --- |
 | `watchlist` | 自选股 6 位代码数组 |
+| `groups` | 分组监控配置（分组名 -> 代码数组），由 ths_client_sync.py 同步 |
 | `ths_cookie` | 同花顺登录 Cookie（用于自动同步自选股） |
 | `ma_periods` | 均线周期（默认 5、10） |
 | `thresholds` | 预警阈值百分比（默认 70、80） |
@@ -196,6 +212,7 @@ https://你的用户名.github.io/poxian-monitor/
 ├── scheduler.py        # 工作日定时调度器
 ├── serve.py            # 手机网页服务 + 盘中实时刷新
 ├── notify.py           # 手机推送（Server酱/Bark/邮件）
+├── ths_client_sync.py  # 同花顺客户端分组同步（景气/收息）
 ├── ths_sync.py         # 同花顺自选股同步
 ├── install_launchd.sh  # macOS 开机自启安装
 ├── uninstall_launchd.sh
