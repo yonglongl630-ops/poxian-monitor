@@ -104,6 +104,7 @@ bash uninstall_launchd.sh   # 卸载
   "serverchan_key": "SCTxxxxxxxxxxxxxxxx",   // 微信推送：sct.ftqq.com 扫码登录获取
   "serverchan_channel": "飞书群",            // 可选：sct.ftqq.com/forward 添加的通道名（转发到飞书群等）
   "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",  // 可选：飞书群机器人 Webhook，自动@所有人
+  "feishu_secret": "机器人开启签名校验时填 Sign Secret",  // 可选：未开启签名校验可留空
   "bark_key": "xxxxxxxxxxxxxxxx",            // iOS 推送：App Store 安装 Bark 后获取
   "email": {
     "smtp_host": "smtp.qq.com",
@@ -129,7 +130,9 @@ python3 notify.py
 - 方式 A（Server酱转发）：在 <https://sct.ftqq.com/forward> 添加"飞书群机器人"通道，
   把通道名填入 `serverchan_channel`，推送经 Server酱转发到飞书群；
 - 方式 B（飞书机器人直推）：在飞书群里添加自定义机器人，把 Webhook 地址填入 `feishu_webhook`，
-  推送直接发到飞书群并自动 @所有人。两个方式可同时配置，也可以只用其中一个。
+  推送直接发到飞书群并自动 @所有人。如果创建机器人时勾选了"签名校验"，需要把对应的
+  **Sign Secret** 填入 `feishu_secret`，否则飞书会返回 `code 19021 sign match fail`。
+  两个方式可同时配置，也可以只用其中一个。
 
 ### 方式 2：手机网页实时监控
 
@@ -191,6 +194,7 @@ https://你的用户名.github.io/poxian-monitor/
    - `SERVERCHAN_KEY`：Server酱 SendKey（微信推送，或配合通道转发飞书群）
    - `SERVERCHAN_CHANNEL`：sct.ftqq.com/forward 里配置的通道名（转发到飞书群等）
    - `FEISHU_WEBHOOK`：飞书群机器人 Webhook（直接推送并 @所有人）
+   - `FEISHU_SECRET`：飞书机器人的 Sign Secret（创建机器人开启"签名校验"时必填）
    - `BARK_KEY`：Bark 的 Key（iOS 推送）
    之后每次触发阈值，云端会自动推送，与 Mac 无关。默认不推送常规汇总，如需每天
    10:30/14:30 也推送，可在仓库里修改 `config.workflow.json` 的 `push_on_every_run` 为 `true`。

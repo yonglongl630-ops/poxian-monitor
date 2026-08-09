@@ -75,6 +75,7 @@
     "serverchan_key": "",
     "serverchan_channel": "",
     "feishu_webhook": "",
+    "feishu_secret": "",
     "bark_key": "",
     "email": {
       "smtp_host": "",

@@ -66,6 +66,7 @@ jobs:
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
           SERVERCHAN_CHANNEL: ${{ secrets.SERVERCHAN_CHANNEL }}
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          FEISHU_SECRET: ${{ secrets.FEISHU_SECRET }}
           BARK_KEY: ${{ secrets.BARK_KEY }}
         run: |
           python3 - <<'PY'
@@ -74,8 +75,9 @@ jobs:
           sc = os.environ.get('SERVERCHAN_KEY', '')
           ch = os.environ.get('SERVERCHAN_CHANNEL', '')
           fw = os.environ.get('FEISHU_WEBHOOK', '')
+          fs = os.environ.get('FEISHU_SECRET', '')
           bk = os.environ.get('BARK_KEY', '')
-          if sc or ch or fw or bk:
+          if sc or ch or fw or fs or bk:
               push = cfg.setdefault('push', {})
               if sc:
                   push['serverchan_key'] = sc
@@ -83,6 +85,8 @@ jobs:
                   push['serverchan_channel'] = ch
               if fw:
                   push['feishu_webhook'] = fw
+              if fs:
+                  push['feishu_secret'] = fs
               if bk:
                   push['bark_key'] = bk
               json.dump(cfg, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)

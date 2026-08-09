@@ -9,6 +9,7 @@
     "serverchan_key": "Server酱(SCT)的SendKey",   # 推送到微信
     "serverchan_channel": "飞书群",               # 可选：sct.ftqq.com/forward 配置的通道名（转发到飞书群等）
     "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",  # 可选：飞书群机器人Webhook（直接@所有人）
+    "feishu_secret": "创建机器人时开启签名校验得到的Sign Secret",  # 可选：机器人开启了签名校验时必填
     "bark_key": "Bark 设备的 Key",                # 推送到 iOS
     "email": {
       "smtp_host": "smtp.qq.com",
@@ -21,14 +22,19 @@
 
 - Server酱：https://sct.ftqq.com 微信扫码登录后获取 SendKey
 - 转发到飞书群：在 sct.ftqq.com/forward 添加"飞书群机器人"通道，把通道名填入 serverchan_channel
-- 直接@所有人：飞书群添加自定义机器人，把 Webhook 地址填入 feishu_webhook（消息自动 @所有人）
+- 直接@所有人：飞书群添加自定义机器人，把 Webhook 地址填入 feishu_webhook（消息自动 @所有人）；
+  若创建机器人时开启了"签名校验"，还需要把 Sign Secret 填入 feishu_secret
 - Bark：App Store 安装 Bark，打开后得到 https://api.day.app/你的Key/
 - 邮箱：任意支持 SMTP 的邮箱（QQ/163 需开启 SMTP 并生成授权码）
 """
 
 import json
+import base64
+import hashlib
+import hmac
 import smtplib
 import ssl
+import time
 import urllib.parse
 import urllib.request
 from email.header import Header
@@ -68,13 +74,25 @@ def _bark(key, title, message):
     return f"Bark 推送失败：{payload}"
 
 
-def _feishu(webhook, title, message):
+def _feishu_sign(secret):
+    """飞书自定义机器人签名：HMAC-SHA256(空消息, key=timestamp\\nsecret)，结果 Base64。"""
+    timestamp = str(int(time.time()))
+    key = f"{timestamp}\n{secret}".encode("utf-8")
+    sign = base64.b64encode(hmac.new(key, digestmod=hashlib.sha256).digest()).decode("utf-8")
+    return timestamp, sign
+
+
+def _feishu(webhook, title, message, secret=None):
     """飞书群机器人 Webhook 直接推送，自动 @所有人。"""
     payload = {
         "msg_type": "text",
         "content": {"text": f"[{title}]\n{message}"},
         "at": {"at_all": True},
     }
+    if secret:
+        timestamp, sign = _feishu_sign(secret)
+        payload["timestamp"] = timestamp
+        payload["sign"] = sign
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         webhook,
@@ -128,7 +146,14 @@ def send_push(config, title, message):
             results.append(f"Server酱 推送失败：{exc}")
     if push.get("feishu_webhook"):
         try:
-            results.append(_feishu(push["feishu_webhook"], title, message))
+            results.append(
+                _feishu(
+                    push["feishu_webhook"],
+                    title,
+                    message,
+                    secret=push.get("feishu_secret") or None,
+                )
+            )
         except Exception as exc:
             results.append(f"飞书群推送失败：{exc}")
     if push.get("bark_key"):
