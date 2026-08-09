@@ -29,6 +29,30 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: 同步客户端分组（可选，配置 THS_COOKIE 后自动跟随客户端分组）
+        env:
+          THS_COOKIE: ${{ secrets.THS_COOKIE }}
+        run: |
+          if [ -n "$THS_COOKIE" ]; then
+            python3 - <<'PY'
+            import json, os
+            cfg = json.load(open('config.json', encoding='utf-8')) if __import__('os').path.exists('config.json') else {}
+            cfg['ths_cookie'] = os.environ['THS_COOKIE']
+            json.dump(cfg, open('config.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
+            PY
+            python3 ths_client_sync.py
+            python3 - <<'PY'
+            import json
+            cfg = json.load(open('config.json', encoding='utf-8'))
+            wf = json.load(open('config.workflow.json', encoding='utf-8'))
+            if cfg.get('groups'):
+                wf['groups'] = cfg['groups']
+                wf['watchlist'] = cfg['watchlist']
+                json.dump(wf, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
+                print('已从同花顺客户端同步分组：' + '、'.join(cfg['groups'].keys()))
+            PY
+          fi
+
       - name: 拉取历史数据（用于走势图累计）
         run: |
           mkdir -p output

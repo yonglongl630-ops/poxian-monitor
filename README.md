@@ -172,7 +172,10 @@ https://你的用户名.github.io/poxian-monitor/
 
 6. 自动更新：工作日 10:30 / 14:30（北京时间）自动生成；也可随时进仓库 **Actions** 标签页
    点 **Run workflow** 手动刷新
-7. 可选：云端直接推微信。仓库 **Settings → Secrets and variables → Actions →
+7. 可选：云端自动跟随客户端分组。仓库 **Settings → Secrets and variables → Actions →
+   ** New repository secret，Name 填 `THS_COOKIE`，Value 填你本地 `config.json` 里
+   `ths_cookie` 的整串值。之后每次云端运行都会先同步你同花顺客户端的最新分组。
+8. 可选：云端直接推微信。仓库 **Settings → Secrets and variables → Actions →
    New repository secret**，Name 填 `SERVERCHAN_KEY`，Value 填你的 Server酱 SendKey。
    之后每次触发 70%/80% 阈值，云端会直接推送微信，与 Mac 无关。
 
