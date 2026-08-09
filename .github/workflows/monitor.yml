@@ -40,17 +40,20 @@ jobs:
             cfg['ths_cookie'] = os.environ['THS_COOKIE']
             json.dump(cfg, open('config.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
             PY
-            python3 ths_client_sync.py
-            python3 - <<'PY'
-            import json
-            cfg = json.load(open('config.json', encoding='utf-8'))
-            wf = json.load(open('config.workflow.json', encoding='utf-8'))
-            if cfg.get('groups'):
-                wf['groups'] = cfg['groups']
-                wf['watchlist'] = cfg['watchlist']
-                json.dump(wf, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
-                print('已从同花顺客户端同步分组：' + '、'.join(cfg['groups'].keys()))
-            PY
+            if python3 ths_client_sync.py; then
+              python3 - <<'PY'
+              import json
+              cfg = json.load(open('config.json', encoding='utf-8'))
+              wf = json.load(open('config.workflow.json', encoding='utf-8'))
+              if cfg.get('groups'):
+                  wf['groups'] = cfg['groups']
+                  wf['watchlist'] = cfg['watchlist']
+                  json.dump(wf, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
+                  print('已从同花顺客户端同步分组：' + '、'.join(cfg['groups'].keys()))
+              PY
+            else
+              echo "同花顺分组同步失败（THS_COOKIE 可能已过期），继续使用仓库内配置的分组"
+            fi
           fi
 
       - name: 拉取历史数据（用于走势图累计）
