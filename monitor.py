@@ -145,6 +145,43 @@ def check_thresholds(summary, thresholds):
     return flags
 
 
+def build_push_text(group_data, overall_summary, overall_flags, max_list=8):
+    """生成推送文案：触发项 + 总体数字 + 各分组数字 + 各分组破线股票名单。
+
+    数字与监控表共用同一份 group_data / overall_summary，确保文字和页面一致；
+    名单可逐只核对，防止只看比例产生误解。
+    """
+    m5, m10 = overall_summary["ma5"], overall_summary["ma10"]
+    hit_keys = [k for k, v in overall_flags.items() if v]
+    if hit_keys:
+        title = "破线监控预警"
+        detail = "触发：" + "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
+    else:
+        title = "破线监控"
+        detail = "未触发阈值"
+    detail += (
+        f"\n总体：破5 {m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%），"
+        f"破10 {m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%）"
+    )
+    for name, gd in group_data.items():
+        sm = gd["summary"]
+        gm5, gm10 = sm["ma5"], sm["ma10"]
+        detail += (
+            f"\n{name}：破5 {gm5['below']}/{gm5['valid']}（{fmt(gm5['pct'])}%），"
+            f"破10 {gm10['below']}/{gm10['valid']}（{fmt(gm10['pct'])}%）"
+        )
+        stocks = gd.get("stocks") or []
+        for period, key in ((5, "below5"), (10, "below10")):
+            broken = [s for s in stocks if s.get(key)]
+            if not broken:
+                continue
+            names = [f"{s['name']}({s['code']})" for s in broken]
+            shown = names[:max_list]
+            extra = f" 等 {len(names)} 只" if len(names) > max_list else ""
+            detail += f"\n　破{period}：{'、'.join(shown)}{extra}"
+    return title, detail
+
+
 def sort_stocks(stocks):
     def rank(s):
         b5, b10 = s["below5"], s["below10"]
@@ -767,17 +804,7 @@ def run(config_path, notify_enabled):
     if not push_enabled and (hit_keys or push_every):
         log("非交易日，跳过推送（阈值状态基于最近交易日收盘数据）")
     if push_enabled and (hit_keys or push_every):
-        if hit_keys:
-            title = "破线监控预警"
-            detail = "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
-            detail += f"（总体破5日线 {fmt(m5['pct'])}%，破10日线 {fmt(m10['pct'])}%）"
-        else:
-            title = "破线监控"
-            detail = f"破5日线 {m5['below']}/{m5['valid']} 只（{fmt(m5['pct'])}%），破10日线 {m10['below']}/{m10['valid']} 只（{fmt(m10['pct'])}%），未触发阈值"
-        for name, gd in group_data.items():
-            sm = gd["summary"]
-            gm5, gm10 = sm["ma5"], sm["ma10"]
-            detail += f"\n{name}：破5 {gm5['below']}/{gm5['valid']}（{fmt(gm5['pct'])}%），破10 {gm10['below']}/{gm10['valid']}（{fmt(gm10['pct'])}%）"
+        title, detail = build_push_text(group_data, o_summary, o_flags)
         if hit_keys and notify_enabled and config.get("notify_on_hit", True):
             mac_notify("破线监控预警", detail)
             log("已发送系统通知")
