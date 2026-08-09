@@ -763,7 +763,10 @@ def run(config_path, notify_enabled):
 
     hit_keys = [k for k, v in o_flags.items() if v]
     push_every = config.get("push_on_every_run", False)
-    if hit_keys or push_every:
+    push_enabled = trading is not False  # 非交易日不推送，避免周末按旧数据打扰
+    if not push_enabled and (hit_keys or push_every):
+        log("非交易日，跳过推送（阈值状态基于最近交易日收盘数据）")
+    if push_enabled and (hit_keys or push_every):
         if hit_keys:
             title = "破线监控预警"
             detail = "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
