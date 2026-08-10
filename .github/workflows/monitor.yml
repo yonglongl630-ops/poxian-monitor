@@ -31,19 +31,31 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: 自动刷新同花顺Cookie（自检闭环）
+        env:
+          THS_COOKIE: ${{ secrets.THS_COOKIE }}
+          THS_USERNAME: ${{ secrets.THS_USERNAME }}
+          THS_PASSWORD: ${{ secrets.THS_PASSWORD }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          FEISHU_SECRET: ${{ secrets.FEISHU_SECRET }}
+        run: |
+          python3 ths_cookie_refresh.py || echo "同花顺Cookie刷新失败（非致命，继续使用仓库内分组）"
+
       - name: 同步客户端分组（可选，配置 THS_COOKIE 后自动跟随客户端分组）
         env:
           THS_COOKIE: ${{ secrets.THS_COOKIE }}
         run: |
-          if [ -n "$THS_COOKIE" ]; then
-            python3 - <<'PY'
+          python3 - <<'PY'
           import json, os
           cfg = json.load(open('config.json', encoding='utf-8')) if os.path.exists('config.json') else {}
-          cfg['ths_cookie'] = os.environ['THS_COOKIE']
+          if not cfg.get('ths_cookie'):
+              cfg['ths_cookie'] = os.environ.get('THS_COOKIE', '')
           json.dump(cfg, open('config.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
           PY
-            if python3 ths_client_sync.py; then
-              python3 - <<'PY'
+          if python3 ths_client_sync.py; then
+            python3 - <<'PY'
           import json
           cfg = json.load(open('config.json', encoding='utf-8'))
           wf = json.load(open('config.workflow.json', encoding='utf-8'))
@@ -53,9 +65,8 @@ jobs:
               json.dump(wf, open('config.workflow.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
               print('已从同花顺客户端同步分组：' + '、'.join(cfg['groups'].keys()))
           PY
-            else
-              echo "同花顺分组同步失败（THS_COOKIE 可能已过期），继续使用仓库内配置的分组"
-            fi
+          else
+            echo "同花顺分组同步失败（Cookie 可能已过期），继续使用仓库内配置的分组"
           fi
 
       - name: 拉取历史数据（用于走势图累计）

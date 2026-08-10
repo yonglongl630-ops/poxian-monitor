@@ -194,6 +194,12 @@ https://你的用户名.github.io/poxian-monitor/
 7. 可选：云端自动跟随客户端分组。仓库 **Settings → Secrets and variables → Actions →
    ** New repository secret，Name 填 `THS_COOKIE`，Value 填你本地 `config.json` 里
    `ths_cookie` 的整串值。之后每次云端运行都会先同步你同花顺客户端的最新分组。
+   **Cookie 自动刷新闭环**：交易日 10:00 / 14:00（北京时间）云端会自动检查 Cookie；
+   失效时用账号密码重新登录并更新密钥，全程自检，失败会自动推送飞书/微信告警。
+   如需启用自动刷新，再添加两个 Secret：
+   - `THS_USERNAME`：同花顺登录账号（手机号或用户名）
+   - `THS_PASSWORD`：同花顺登录密码
+   - `GH_PAT`：GitHub 令牌（用于云端更新 `THS_COOKIE` Secret；已有仓库写权限的令牌即可）
 8. 可选：云端推送（触发 70%/80% 阈值时）。仓库 **Settings → Secrets and variables → Actions →
    New repository secret**，可依次添加：
    - `SERVERCHAN_KEY`：Server酱 SendKey（微信推送，或配合通道转发飞书群）
