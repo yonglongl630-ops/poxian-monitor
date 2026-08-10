@@ -430,6 +430,24 @@ def render_history_chart(history, group_names):
     return f'<div class="chart-box"><h2>破线比例走势（近 {len(history)} 次监控）</h2>{svg}</div>'
 
 
+def render_threshold_intro():
+    """监控阈值介绍详情：与【破线比例一览】同款卡片样式，纯说明文字。"""
+    return (
+        '<div class="bars intro-box">'
+        "<h2>监控阈值介绍详情</h2>"
+        '<ul class="intro-list">'
+        "<li><b>破5日线</b>：最近 5 个交易日收盘均价（前复权，交易时段并入实时价）；"
+        "“破线”＝现价低于 5 日线。</li>"
+        "<li><b>破10日线</b>：最近 10 个交易日收盘均价（前复权，交易时段并入实时价）；"
+        "“破线”＝现价低于 10 日线。</li>"
+        "<li><b>阈值 70% / 80%</b>：当总体或任一分组的破线比例达到 70% / 80% 时，"
+        "触发红色预警并推送（飞书 @所有人 + 微信）。</li>"
+        "<li><b>分组</b>：景气、收息两个板块分别统计、互不合并；分组触发显示在各自页签的"
+        "阈值徽标与比例条中。</li>"
+        "</ul></div>"
+    )
+
+
 def render_rows(stocks):
     def badge(v):
         return '<span class="badge y">破线</span>' if v else '<span class="badge n">正常</span>'
@@ -564,16 +582,19 @@ def render_dashboard(snapshot, history):
     total = overall.get("total") or 0
     trigger_days = compute_trigger_days(history)
 
-    # 红色预警横幅仅反映"总体"阈值触发；分组触发在各自页签的阈值徽标/比例条展示
+    # 红色预警框默认隐藏，仅"总体"阈值触发时显示；分组触发在各自页签的徽标/比例条展示
     hit_keys = [k for k, v in flags.items() if v]
     if hit_keys:
-        banner = (
-            '<div class="banner warn" id="banner">⚠ 阈值触发：'
+        alert = (
+            '<div class="banner warn" id="trigger-alert">⚠ 阈值触发：'
             + format_hit_keys(hit_keys, {}, flags)
             + "，请关注破线风险！</div>"
         )
     else:
-        banner = '<div class="banner ok" id="banner">当前未触发 70% / 80% 破线阈值。</div>'
+        alert = (
+            '<div class="banner warn" id="trigger-alert" style="display:none">'
+            "⚠ 阈值触发：请关注破线风险！</div>"
+        )
 
     tabs = '<button class="tab active" data-tab="overview">总览</button>'
     for name in group_names:
@@ -584,6 +605,7 @@ def render_dashboard(snapshot, history):
         '<div id="tab-overview" class="tab-panel">'
         f'{render_bars(groups_meta, trigger_days)}'
         f'{render_history_chart(history, group_names)}'
+        f"{render_threshold_intro()}"
         "</div>"
     )
     panels = "".join(
@@ -627,7 +649,7 @@ def render_dashboard(snapshot, history):
         TEMPLATE.replace("__GENERATED_AT__", snapshot["generated_at"])
         .replace("__MARKET_STATUS__", snapshot["market_status"])
         .replace("__TOTAL__", str(total))
-        .replace("__BANNER__", banner)
+        .replace("__BANNER__", alert)
         .replace("__TABS__", tabs)
         .replace("__OVERVIEW_PANEL__", overview)
         .replace("__GROUP_PANELS__", panels)
@@ -683,6 +705,10 @@ border:1px solid var(--border);background:var(--card);color:var(--muted)}
 .bar-mark{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1px dashed var(--muted)}
 .bar-mark i{display:block}
 .bar-mark em{position:absolute;top:-16px;left:-10px;font-style:normal;color:var(--muted);font-size:10px}
+.intro-list{margin:0;padding:0;list-style:none}
+.intro-list li{color:var(--muted);font-size:13px;line-height:2;padding-left:14px;position:relative}
+.intro-list li::before{content:"·";position:absolute;left:2px;color:var(--blue)}
+.intro-list b{color:var(--text)}
 .trig-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
 font-size:13px;color:var(--muted);margin-top:7px}
 .trig-row .red{color:var(--red)}
@@ -825,14 +851,13 @@ function updateBanner(){
     var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
     if(os[p].pct!=null&&os[p].pct>=th) hit.push(k);
   });
-  var banner=document.getElementById('banner');
+  var banner=document.getElementById('trigger-alert');
   if(banner){
     if(hit.length){
-      banner.className='banner warn';
+      banner.style.display='block';
       banner.textContent='⚠ 阈值触发：'+hit.map(function(k){return THRESH_NAMES[k];}).join('、')+'，请关注破线风险！';
     }else{
-      banner.className='banner ok';
-      banner.textContent='当前未触发 70% / 80% 破线阈值。';
+      banner.style.display='none';
     }
   }
 }
