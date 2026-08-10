@@ -107,6 +107,7 @@ def analyze_stock(code, quote, kline, now=None):
         "name": quote.get("name") or code,
         "price": round(price, 3),
         "pct": round(quote["pct"], 2) if quote.get("pct") is not None else None,
+        "closes": [round(c, 3) for c in closes[-10:]],
         "ma5": None,
         "below5": None,
         "dist5": None,
@@ -145,7 +146,34 @@ def check_thresholds(summary, thresholds):
     return flags
 
 
-def build_push_text(group_data, overall_summary, overall_flags, max_list=8):
+def collect_hit_keys(group_data, overall_flags):
+    """总体 + 各分组共同判断阈值触发，返回 (hit_keys, group_hits)。"""
+    hit_set = set(k for k, v in (overall_flags or {}).items() if v)
+    group_hits = {}
+    for name, gd in group_data.items():
+        for k, v in (gd.get("thresholds") or {}).items():
+            if v:
+                hit_set.add(k)
+                group_hits.setdefault(name, []).append(k)
+    hit_keys = [k for k in THRESHOLD_KEYS if k in hit_set]
+    return hit_keys, group_hits
+
+
+def format_hit_keys(hit_keys, group_hits, overall_flags):
+    """把触发项格式化为可读文本，标注来源（总体/分组名）。"""
+    parts = []
+    for k in hit_keys:
+        src = []
+        if (overall_flags or {}).get(k):
+            src.append("总体")
+        for name, ks in (group_hits or {}).items():
+            if k in ks:
+                src.append(name)
+        parts.append(THRESHOLD_NAMES[k] + (f"（{'/'.join(src)}）" if src else ""))
+    return "、".join(parts)
+
+
+def build_push_text(group_data, overall_summary, overall_flags, group_hits, max_list=8):
     """生成推送文案：触发项 + 总体数字 + 各分组数字 + 各分组破线股票名单。
 
     数字与监控表共用同一份 group_data / overall_summary，确保文字和页面一致；
@@ -153,11 +181,11 @@ def build_push_text(group_data, overall_summary, overall_flags, max_list=8):
     group_lines 为各分组汇总行的文本（用于飞书里加粗展示；个股名单不加粗）。
     """
     m5, m10 = overall_summary["ma5"], overall_summary["ma10"]
-    hit_keys = [k for k, v in overall_flags.items() if v]
+    hit_keys, _ = collect_hit_keys(group_data, overall_flags)
     group_lines = []
     if hit_keys:
         title = "破线监控预警"
-        detail = "触发：" + "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
+        detail = "触发：" + format_hit_keys(hit_keys, group_hits, overall_flags)
     else:
         title = "破线监控"
         detail = "未触发阈值"
@@ -234,6 +262,8 @@ def load_history(limit=60):
             entry = {
                 "time": data.get("generated_at", ""),
                 "date": data.get("date", ""),
+                "slot": data.get("slot", ""),
+                "hit_keys": list(data.get("hit_keys") or []),
                 "is_trading_day": bool(data.get("is_trading_day")),
                 "pct5": (summary.get("ma5") or {}).get("pct"),
                 "pct10": (summary.get("ma10") or {}).get("pct"),
@@ -411,18 +441,18 @@ def render_rows(stocks):
         pct_cls = "up" if (pct or 0) > 0 else ("down" if (pct or 0) < 0 else "flat")
         name = html.escape(s["name"])
         rows.append(
-            f"""<tr class="{row_cls}">
+            f"""<tr class="{row_cls}" data-code="{s['code']}">
 <td>{i}</td>
 <td>{s['code']}</td>
 <td style="text-align:left">{name}</td>
-<td>{fmt(s['price'], 2)}</td>
-<td class="{pct_cls}">{fmt(pct, 2)}%</td>
-<td>{fmt(s['ma5'])}</td>
-<td>{fmt(s['dist5'], 2)}%</td>
-<td>{badge(b5)}</td>
-<td>{fmt(s['ma10'])}</td>
-<td>{fmt(s['dist10'], 2)}%</td>
-<td>{badge(b10)}</td>
+<td class="c-price">{fmt(s['price'], 2)}</td>
+<td class="c-pct {pct_cls}">{fmt(pct, 2)}%</td>
+<td class="c-ma5">{fmt(s['ma5'])}</td>
+<td class="c-dist5">{fmt(s['dist5'], 2)}%</td>
+<td class="c-b5">{badge(b5)}</td>
+<td class="c-ma10">{fmt(s['ma10'])}</td>
+<td class="c-dist10">{fmt(s['dist10'], 2)}%</td>
+<td class="c-b10">{badge(b10)}</td>
 </tr>"""
         )
     return "\n".join(rows)
@@ -444,7 +474,7 @@ def render_bars(groups_meta, trigger_days=None):
                 if streak else ""
             )
             items.append(
-                f"""<div class="bar-item">
+                f"""<div class="bar-item" data-group="{html.escape(name)}" data-period="{period}">
 <div class="bar-label"><span>{html.escape(name)} · {label}</span>
 <span class="bar-val {cls}">{fmt(pct)}%</span>
 <span class="bar-num">{sm['below']}/{sm['valid']} 只</span>{days}</div>
@@ -469,11 +499,11 @@ def render_group_panel(name, group_data, thresholds, trigger_days=None):
         f'<div class="num">{total}</div>'
         f'<div class="sub">有效样本：MA5 {m5["valid"]} 只 / MA10 {m10["valid"]} 只</div></div>',
         f'<div class="card"><div class="label">破5日线（现价 &lt; MA5）</div>'
-        f'<div class="num {c5}">{m5["below"]}<span style="font-size:15px;color:var(--muted)"> / {m5["valid"]} 只</span></div>'
-        f'<div class="sub">比例：{fmt(m5["pct"])}%　阈值 ≥70% / ≥80%</div></div>',
+        f'<div class="num {c5}" data-num="ma5"><span class="c-below-n">{m5["below"]}</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / {m5["valid"]} 只</span></div>'
+        f'<div class="sub">比例：<span class="c-pct">{fmt(m5["pct"])}%</span>　阈值 ≥70% / ≥80%</div></div>',
         f'<div class="card"><div class="label">破10日线（现价 &lt; MA10）</div>'
-        f'<div class="num {c10}">{m10["below"]}<span style="font-size:15px;color:var(--muted)"> / {m10["valid"]} 只</span></div>'
-        f'<div class="sub">比例：{fmt(m10["pct"])}%　阈值 ≥70% / ≥80%</div></div>',
+        f'<div class="num {c10}" data-num="ma10"><span class="c-below-n">{m10["below"]}</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / {m10["valid"]} 只</span></div>'
+        f'<div class="sub">比例：<span class="c-pct">{fmt(m10["pct"])}%</span>　阈值 ≥70% / ≥80%</div></div>',
     ]
 
     def days_info(key):
@@ -486,7 +516,7 @@ def render_group_panel(name, group_data, thresholds, trigger_days=None):
         return f"已触发 · 连续{streak}个交易日" if streak else "已触发"
 
     chips = "".join(
-        f'<span class="chip {"hit" if thresholds[k] else ""}">{name2}：{chip_label(k, thresholds[k])}</span>'
+        f'<span class="chip {"hit" if thresholds[k] else ""}" data-key="{k}" data-streak="{days_info(k).get("streak") or 0}">{name2}：{chip_label(k, thresholds[k])}</span>'
         for k, name2 in THRESHOLD_NAMES.items()
     )
 
@@ -517,7 +547,7 @@ def render_group_panel(name, group_data, thresholds, trigger_days=None):
         f"</tr></thead><tbody>{rows}</tbody></table></div>"
     )
     return (
-        f'<div id="tab-{html.escape(name)}" class="tab-panel" hidden>'
+        f'<div id="tab-{html.escape(name)}" class="tab-panel" data-group="{html.escape(name)}" hidden>'
         f'<h2 class="panel-title">{html.escape(name)} 分组</h2>'
         f'<div class="cards">{"".join(cards)}</div>'
         f'<div class="chips">{chips}</div>{table}</div>'
@@ -533,15 +563,18 @@ def render_dashboard(snapshot, history):
     total = overall.get("total") or 0
     trigger_days = compute_trigger_days(history)
 
-    hit_keys = [k for k, v in flags.items() if v]
+    group_flags = {name: (groups[name].get("thresholds") or {}) for name in group_names if name in groups}
+    hit_keys, group_hits = collect_hit_keys(
+        {name: {"thresholds": gf} for name, gf in group_flags.items()}, flags
+    )
     if hit_keys:
         banner = (
-            '<div class="banner warn">⚠ 阈值触发：'
-            + "、".join(THRESHOLD_NAMES[k] for k in hit_keys)
+            '<div class="banner warn" id="banner">⚠ 阈值触发：'
+            + format_hit_keys(hit_keys, group_hits, flags)
             + "，请关注破线风险！</div>"
         )
     else:
-        banner = '<div class="banner ok">当前未触发 70% / 80% 破线阈值。</div>'
+        banner = '<div class="banner ok" id="banner">当前未触发 70% / 80% 破线阈值。</div>'
 
     tabs = '<button class="tab active" data-tab="overview">总览</button>'
     for name in group_names:
@@ -563,8 +596,33 @@ def render_dashboard(snapshot, history):
         "说明：MA5/MA10 基于前复权日K收盘价；交易时段内均线并入实时价（与行情软件盘中均线口径一致）。"
         "“破线”= 现价低于对应均线；上市不足 5/10 个交易日的股票不参与对应比例统计。"
         "分组数据来自同花顺客户端云端自选股（景气/收息），可在客户端修改后重新同步。"
+        "页面打开后自动实时刷新行情（无需服务器），“立即刷新”随时手动更新。"
         "数据源：腾讯行情（备用：东方财富），仅供研究参考，不构成投资建议。"
     )
+
+    live = {
+        "groups": [
+            {"name": n, "codes": [s["code"] for s in groups[n]["stocks"]]}
+            for n in group_names
+            if n in groups
+        ],
+        "codes": [
+            {
+                "code": s["code"],
+                "symbol": stock_data.code_to_symbol(s["code"]),
+                "name": s["name"],
+                "closes": s.get("closes") or [],
+                "price": s["price"],
+                "pct": s.get("pct"),
+                "ma5": s.get("ma5"),
+                "ma10": s.get("ma10"),
+                "below5": bool(s.get("below5")),
+                "below10": bool(s.get("below10")),
+            }
+            for s in (overall.get("stocks") or [])
+        ],
+    }
+    live_json = json.dumps(live, ensure_ascii=False).replace("</", "<\\/")
 
     return (
         TEMPLATE.replace("__GENERATED_AT__", snapshot["generated_at"])
@@ -575,6 +633,7 @@ def render_dashboard(snapshot, history):
         .replace("__OVERVIEW_PANEL__", overview)
         .replace("__GROUP_PANELS__", panels)
         .replace("__NOTE__", note)
+        .replace("__LIVE_DATA__", live_json)
     )
 
 
@@ -655,7 +714,7 @@ background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
 <div class="top">
   <div>
     <h1>破线监控</h1>
-    <div class="meta">更新时间：__GENERATED_AT__　市场：__MARKET_STATUS__　自选股总数：__TOTAL__</div>
+    <div class="meta">更新时间：<span id="gen-time">__GENERATED_AT__</span>　市场：__MARKET_STATUS__　自选股总数：__TOTAL__</div>
   </div>
   <button class="btn" id="refreshBtn">立即刷新</button>
 </div>
@@ -665,18 +724,158 @@ __TABS__
 </div>
 __OVERVIEW_PANEL__
 __GROUP_PANELS__
-<div class="foot">__NOTE__<br>此页面每 60 秒自动刷新；定时监控由 scheduler.py / GitHub Actions 在交易日 10:30、14:30 生成最新快照。</div>
+<div class="foot">__NOTE__<br>此页面打开后每 60 秒自动拉取实时行情（交易时段内有效）；定时快照由 GitHub Actions 在交易日 10:30、14:30 生成。</div>
 <script>
-document.getElementById("refreshBtn").addEventListener("click", function(){location.reload()});
+const LIVE = __LIVE_DATA__;
+const THRESH_NAMES = {"ma5_70":"破5日线 ≥ 70%","ma5_80":"破5日线 ≥ 80%","ma10_70":"破10日线 ≥ 70%","ma10_80":"破10日线 ≥ 80%"};
+const KEYS = ["ma5_70","ma5_80","ma10_70","ma10_80"];
+function badge(v){return v?'<span class="badge y">破线</span>':'<span class="badge n">正常</span>';}
+function avg(a){return a.reduce(function(x,y){return x+y;},0)/a.length;}
+function summarize(codes){
+  var out={};
+  [5,10].forEach(function(p){
+    var valid=codes.filter(function(c){return c['ma'+p]!=null;});
+    var below=valid.filter(function(c){return c['below'+p];});
+    out[p]={valid:valid.length,below:below.length,pct:valid.length?below.length/valid.length*100:null};
+  });
+  return out;
+}
+function allCodes(){var m={};LIVE.codes.forEach(function(c){m[c.code]=c;});return m;}
+function colorCls(p){return p>=70?'red':p>=50?'orange':'green';}
+function parseQuotes(){
+  var changed=false;
+  LIVE.codes.forEach(function(c){
+    var raw=window['v_'+c.symbol];
+    if(!raw) return;
+    var p=String(raw).split('~');
+    if(p.length<35) return;
+    var price=parseFloat(p[3]);
+    if(!(price>0)) return;
+    var pct=parseFloat(p[32]);
+    var closes=(c.closes||[]).slice();
+    if(closes.length) closes[closes.length-1]=price;
+    c.price=price;
+    c.pct=isFinite(pct)?pct:null;
+    c.ma5=closes.length>=5?avg(closes.slice(-5)):null;
+    c.ma10=closes.length>=10?avg(closes.slice(-10)):null;
+    c.below5=c.ma5!=null&&price<c.ma5;
+    c.below10=c.ma10!=null&&price<c.ma10;
+    changed=true;
+    updateRow(c);
+  });
+  if(changed){updateSummaries();updateBanner();}
+}
+function updateRow(c){
+  var tr=document.querySelector('tr[data-code="'+c.code+'"]');
+  if(!tr) return;
+  tr.querySelector('.c-price').textContent=c.price.toFixed(2);
+  var pe=tr.querySelector('.c-pct');
+  pe.textContent=(c.pct==null?'-':c.pct.toFixed(2)+'%');
+  pe.className='c-pct '+(c.pct>0?'up':c.pct<0?'down':'flat');
+  tr.querySelector('.c-ma5').textContent=c.ma5==null?'-':c.ma5.toFixed(2);
+  tr.querySelector('.c-dist5').textContent=c.ma5==null?'-':((c.price-c.ma5)/c.ma5*100).toFixed(2)+'%';
+  tr.querySelector('.c-ma10').textContent=c.ma10==null?'-':c.ma10.toFixed(2);
+  tr.querySelector('.c-dist10').textContent=c.ma10==null?'-':((c.price-c.ma10)/c.ma10*100).toFixed(2)+'%';
+  tr.querySelector('.c-b5').innerHTML=badge(c.below5);
+  tr.querySelector('.c-b10').innerHTML=badge(c.below10);
+  tr.className=(c.below5&&c.below10)?'both':(c.below5||c.below10)?'one':'';
+}
+function updateSummaries(){
+  var byCode=allCodes();
+  LIVE.groups.forEach(function(g){
+    var codes=g.codes.map(function(code){return byCode[code];}).filter(Boolean);
+    var sm=summarize(codes);
+    [5,10].forEach(function(p){
+      var panel=document.querySelector('.tab-panel[data-group="'+g.name+'"]');
+      if(!panel) return;
+      var num=panel.querySelector('.c-below-n');
+      var valid=panel.querySelector('.c-valid');
+      var pctEl=panel.querySelector('.c-pct');
+      var numDiv=panel.querySelector('.num[data-num="ma'+p+'"]');
+      if(num) num.textContent=sm[p].below;
+      if(valid) valid.textContent=' / '+sm[p].valid+' 只';
+      if(pctEl) pctEl.textContent=sm[p].pct==null?'-':sm[p].pct.toFixed(2)+'%';
+      if(numDiv) numDiv.className='num '+colorCls(sm[p].pct==null?0:sm[p].pct);
+      KEYS.forEach(function(k){
+        if(k.indexOf('ma'+p+'_')!==0) return;
+        var th=parseInt(k.split('_')[1],10);
+        var hit=sm[p].pct!=null&&sm[p].pct>=th;
+        var chip=panel.querySelector('.chip[data-key="'+k+'"]');
+        if(chip){
+          chip.classList.toggle('hit',hit);
+          var streak=parseInt(chip.getAttribute('data-streak')||'0',10);
+          chip.textContent=THRESH_NAMES[k]+'：'+(hit?(streak>0?'已触发 · 连续'+streak+'个交易日':'已触发'):'未触发');
+        }
+      });
+      var bar=document.querySelector('.bar-item[data-group="'+g.name+'"][data-period="'+p+'"]');
+      if(bar){
+        var bv=bar.querySelector('.bar-val'),bn=bar.querySelector('.bar-num'),bf=bar.querySelector('.bar-fill');
+        var pct=sm[p].pct==null?0:sm[p].pct;
+        var cls=colorCls(pct);
+        if(bv){bv.textContent=(sm[p].pct==null?'-':sm[p].pct.toFixed(2))+'%';bv.className='bar-val '+cls;}
+        if(bn) bn.textContent=sm[p].below+'/'+sm[p].valid+' 只';
+        if(bf){bf.className='bar-fill '+cls;bf.style.width=Math.min(pct,100).toFixed(2)+'%';}
+      }
+    });
+  });
+}
+function updateBanner(){
+  var hit=[],src={};
+  function add(k,n){if(hit.indexOf(k)<0)hit.push(k);(src[k]=src[k]||[]).push(n);}
+  var byCode=allCodes();
+  LIVE.groups.forEach(function(g){
+    var codes=g.codes.map(function(code){return byCode[code];}).filter(Boolean);
+    var sm=summarize(codes);
+    KEYS.forEach(function(k){
+      var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
+      if(sm[p].pct!=null&&sm[p].pct>=th) add(k,g.name);
+    });
+  });
+  var os=summarize(LIVE.codes);
+  KEYS.forEach(function(k){
+    var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
+    if(os[p].pct!=null&&os[p].pct>=th) add(k,'总体');
+  });
+  var banner=document.getElementById('banner');
+  if(banner){
+    if(hit.length){
+      banner.className='banner warn';
+      banner.textContent='⚠ 阈值触发：'+hit.map(function(k){return THRESH_NAMES[k]+'（'+src[k].join('/')+'）';}).join('、')+'，请关注破线风险！';
+    }else{
+      banner.className='banner ok';
+      banner.textContent='当前未触发 70% / 80% 破线阈值。';
+    }
+  }
+}
+function refreshQuotes(cb){
+  var syms=LIVE.codes.map(function(c){return c.symbol;}).join(',');
+  var s=document.createElement('script');
+  s.src='https://qt.gtimg.cn/q='+syms+'&_='+Date.now();
+  s.onload=function(){try{parseQuotes();}catch(e){console.error(e);}if(cb)cb();};
+  s.onerror=function(){if(cb)cb();};
+  document.head.appendChild(s);
+}
+function stamp(){
+  var el=document.getElementById('gen-time');
+  if(!el) return;
+  var n=new Date(),pad=function(x){return x<10?'0'+x:''+x;};
+  el.textContent=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())+' '+pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds())+'（本地实时）';
+}
+document.getElementById("refreshBtn").addEventListener("click",function(){
+  var btn=document.getElementById("refreshBtn"),old=btn.textContent;
+  btn.textContent="刷新中…";
+  refreshQuotes(function(){btn.textContent=old;stamp();});
+});
+refreshQuotes(stamp);
+setInterval(function(){refreshQuotes(stamp);},60000);
 document.querySelectorAll(".tab").forEach(function(btn){
-  btn.addEventListener("click", function(){
+  btn.addEventListener("click",function(){
     document.querySelectorAll(".tab").forEach(function(b){b.classList.remove("active")});
-    document.querySelectorAll(".tab-panel").forEach(function(p){p.hidden = true});
+    document.querySelectorAll(".tab-panel").forEach(function(p){p.hidden=true});
     btn.classList.add("active");
-    document.getElementById("tab-" + btn.dataset.tab).hidden = false;
+    document.getElementById("tab-"+btn.dataset.tab).hidden=false;
   });
 });
-setTimeout(function(){location.reload()}, 60000);
 </script>
 </body>
 </html>
@@ -765,10 +964,14 @@ def run(config_path, notify_enabled):
         market_status = "未知"
 
     now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    slot = "am" if now.hour < 12 else "pm"
+    hit_keys, group_hits = collect_hit_keys(group_data, o_flags)
     snapshot = {
         "generated_at": now_str,
         "date": now_str[:10],
         "time": now_str[11:],
+        "slot": slot,
+        "hit_keys": hit_keys,
         "is_trading_day": trading,
         "market_status": market_status,
         "group_names": list(groups.keys()),
@@ -803,18 +1006,33 @@ def run(config_path, notify_enabled):
         log(f"以下代码未获取到行情，已跳过：{', '.join(skipped)}")
     log(f"监控表已生成：{DASHBOARD_HTML}")
 
-    hit_keys = [k for k, v in o_flags.items() if v]
     push_every = config.get("push_on_every_run", False)
-    push_enabled = trading is not False  # 非交易日不推送，避免周末按旧数据打扰
+    # 仅交易日盘中推送；GitHub 定时触发的运行即使延迟到收盘后也允许推送（GITHUB_EVENT_NAME=schedule）
+    event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+    push_enabled = trading is True and (in_session or event_name == "schedule")
     if not push_enabled and (hit_keys or push_every):
-        log("非交易日，跳过推送（阈值状态基于最近交易日收盘数据）")
+        log("非交易日或非交易时段，跳过推送（阈值状态基于最近快照）")
     if push_enabled and (hit_keys or push_every):
-        title, detail, group_lines = build_push_text(group_data, o_summary, o_flags)
-        if hit_keys and notify_enabled and config.get("notify_on_hit", True):
-            mac_notify("破线监控预警", detail)
-            log("已发送系统通知")
-        for r in notify.send_push(config, title, detail, bold_lines=group_lines):
-            log(f"手机推送：{r}")
+        already = False
+        if hit_keys:
+            want = set(hit_keys)
+            for e in history:
+                if e.get("time") == now_str:
+                    continue
+                if e.get("date") != now_str[:10] or e.get("slot") != slot:
+                    continue
+                if set(e.get("hit_keys") or []) == want:
+                    already = True
+                    break
+        if hit_keys and already:
+            log("今日该时段已推送过相同触发项，跳过重复推送")
+        else:
+            title, detail, group_lines = build_push_text(group_data, o_summary, o_flags, group_hits)
+            if hit_keys and notify_enabled and config.get("notify_on_hit", True):
+                mac_notify("破线监控预警", detail)
+                log("已发送系统通知")
+            for r in notify.send_push(config, title, detail, bold_lines=group_lines):
+                log(f"手机推送：{r}")
     return 0
 
 

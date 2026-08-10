@@ -189,7 +189,8 @@ https://你的用户名.github.io/poxian-monitor/
 ```
 
 6. 自动更新：工作日 10:30 / 14:30（北京时间）自动生成；也可随时进仓库 **Actions** 标签页
-   点 **Run workflow** 手动刷新
+   点 **Run workflow** 手动刷新。页面上的 **立即刷新** 按钮会直接在浏览器里拉取实时行情并
+   重算 MA5/MA10（交易时段内有效），页面打开后每 60 秒自动刷新一次，不依赖服务器重新运行。
 7. 可选：云端自动跟随客户端分组。仓库 **Settings → Secrets and variables → Actions →
    ** New repository secret，Name 填 `THS_COOKIE`，Value 填你本地 `config.json` 里
    `ths_cookie` 的整串值。之后每次云端运行都会先同步你同花顺客户端的最新分组。
@@ -200,8 +201,11 @@ https://你的用户名.github.io/poxian-monitor/
    - `FEISHU_WEBHOOK`：飞书群机器人 Webhook（直接推送并 @所有人）
    - `FEISHU_SECRET`：飞书机器人的 Sign Secret（创建机器人开启"签名校验"时必填）
    - `BARK_KEY`：Bark 的 Key（iOS 推送）
-   之后每次触发阈值，云端会自动推送，与 Mac 无关。默认不推送常规汇总，如需每天
+  之后每次触发阈值，云端会自动推送，与 Mac 无关。默认不推送常规汇总，如需每天
    10:30/14:30 也推送，可在仓库里修改 `config.workflow.json` 的 `push_on_every_run` 为 `true`。
+   推送触发范围 = 总体 + 两个分组（景气/收息），任一组合的 70%/80% 破线达标即推送，
+   消息会标注触发来源（如“破10日线 ≥ 80%（收息）”）。
+   GitHub 定时调度偶尔会延迟/漏跑，已配置 10:45/14:45 兜底任务，重复触发自动去重不会重复推送。
 
 > 隐私提醒：公开仓库意味着自选股与监控数据对公网可见。若需私有 + 公网访问，
 > 需 GitHub Pro（约 $4/月）或改用云服务器方案。

@@ -7,6 +7,8 @@ on:
     # GitHub Actions 使用 UTC 时间；北京时间 = UTC+8
     # 30 2,6 * * 1-5 = 北京时间 10:30 / 14:30（周一至周五）
     - cron: '30 2,6 * * 1-5'
+    # 兜底：GitHub 定时调度偶尔会延迟或漏跑，15 分钟后补跑一次（重复触发由脚本去重，不会重复推送）
+    - cron: '45 2,6 * * 1-5'
   workflow_dispatch: {}
 
 permissions:
@@ -93,6 +95,8 @@ jobs:
           PY
 
       - name: 运行破线监控
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: |
           python3 monitor.py --config config.workflow.json --no-notify
 
