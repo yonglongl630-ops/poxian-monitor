@@ -539,6 +539,20 @@ def render_group_panel(name, group_data, thresholds, trigger_days=None):
         for k, name2 in THRESHOLD_NAMES.items()
     )
 
+    hits = [k for k, v in thresholds.items() if v]
+    if hits:
+        group_alert = (
+            f'<div class="banner warn group-alert" id="group-alert-{html.escape(name)}">'
+            f"⚠ {html.escape(name)}分组触发："
+            + "、".join(THRESHOLD_NAMES[k] for k in hits)
+            + "，请关注破线风险！</div>"
+        )
+    else:
+        group_alert = (
+            f'<div class="banner warn group-alert" id="group-alert-{html.escape(name)}" style="display:none">'
+            f"⚠ {html.escape(name)}分组触发：请关注破线风险！</div>"
+        )
+
     def days_row(key, label):
         info = days_info(key)
         streak = info.get("streak") or 0
@@ -567,6 +581,7 @@ def render_group_panel(name, group_data, thresholds, trigger_days=None):
     )
     return (
         f'<div id="tab-{html.escape(name)}" class="tab-panel" data-group="{html.escape(name)}" hidden>'
+        f"{group_alert}"
         f'<h2 class="panel-title">{html.escape(name)} 分组</h2>'
         f'<div class="cards">{"".join(cards)}</div>'
         f'<div class="chips">{chips}</div>{table}</div>'
@@ -788,7 +803,7 @@ function parseQuotes(){
     changed=true;
     updateRow(c);
   });
-  if(changed){updateSummaries();updateBanner();}
+  if(changed){updateSummaries();updateBanner();updateGroupAlerts();}
 }
 function updateRow(c){
   var tr=document.querySelector('tr[data-code="'+c.code+'"]');
@@ -860,6 +875,26 @@ function updateBanner(){
       banner.style.display='none';
     }
   }
+}
+function updateGroupAlerts(){
+  var byCode=allCodes();
+  LIVE.groups.forEach(function(g){
+    var codes=g.codes.map(function(code){return byCode[code];}).filter(Boolean);
+    var sm=summarize(codes);
+    var hit=KEYS.filter(function(k){
+      var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
+      return sm[p].pct!=null&&sm[p].pct>=th;
+    });
+    var el=document.getElementById('group-alert-'+g.name);
+    if(el){
+      if(hit.length){
+        el.style.display='block';
+        el.textContent='⚠ '+g.name+'分组触发：'+hit.map(function(k){return THRESH_NAMES[k];}).join('、')+'，请关注破线风险！';
+      }else{
+        el.style.display='none';
+      }
+    }
+  });
 }
 function refreshQuotes(cb){
   var syms=LIVE.codes.map(function(c){return c.symbol;}).join(',');
