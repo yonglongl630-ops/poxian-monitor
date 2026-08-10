@@ -264,6 +264,7 @@ def load_history(limit=60):
                 "date": data.get("date", ""),
                 "slot": data.get("slot", ""),
                 "hit_keys": list(data.get("hit_keys") or []),
+                "push_sent": bool(data.get("push_sent")),
                 "is_trading_day": bool(data.get("is_trading_day")),
                 "pct5": (summary.get("ma5") or {}).get("pct"),
                 "pct10": (summary.get("ma10") or {}).get("pct"),
@@ -563,14 +564,12 @@ def render_dashboard(snapshot, history):
     total = overall.get("total") or 0
     trigger_days = compute_trigger_days(history)
 
-    group_flags = {name: (groups[name].get("thresholds") or {}) for name in group_names if name in groups}
-    hit_keys, group_hits = collect_hit_keys(
-        {name: {"thresholds": gf} for name, gf in group_flags.items()}, flags
-    )
+    # 红色预警横幅仅反映"总体"阈值触发；分组触发在各自页签的阈值徽标/比例条展示
+    hit_keys = [k for k, v in flags.items() if v]
     if hit_keys:
         banner = (
             '<div class="banner warn" id="banner">⚠ 阈值触发：'
-            + format_hit_keys(hit_keys, group_hits, flags)
+            + format_hit_keys(hit_keys, {}, flags)
             + "，请关注破线风险！</div>"
         )
     else:
@@ -820,27 +819,17 @@ function updateSummaries(){
   });
 }
 function updateBanner(){
-  var hit=[],src={};
-  function add(k,n){if(hit.indexOf(k)<0)hit.push(k);(src[k]=src[k]||[]).push(n);}
-  var byCode=allCodes();
-  LIVE.groups.forEach(function(g){
-    var codes=g.codes.map(function(code){return byCode[code];}).filter(Boolean);
-    var sm=summarize(codes);
-    KEYS.forEach(function(k){
-      var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
-      if(sm[p].pct!=null&&sm[p].pct>=th) add(k,g.name);
-    });
-  });
+  var hit=[];
   var os=summarize(LIVE.codes);
   KEYS.forEach(function(k){
     var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
-    if(os[p].pct!=null&&os[p].pct>=th) add(k,'总体');
+    if(os[p].pct!=null&&os[p].pct>=th) hit.push(k);
   });
   var banner=document.getElementById('banner');
   if(banner){
     if(hit.length){
       banner.className='banner warn';
-      banner.textContent='⚠ 阈值触发：'+hit.map(function(k){return THRESH_NAMES[k]+'（'+src[k].join('/')+'）';}).join('、')+'，请关注破线风险！';
+      banner.textContent='⚠ 阈值触发：'+hit.map(function(k){return THRESH_NAMES[k];}).join('、')+'，请关注破线风险！';
     }else{
       banner.className='banner ok';
       banner.textContent='当前未触发 70% / 80% 破线阈值。';
@@ -984,6 +973,30 @@ def run(config_path, notify_enabled):
         },
         "skipped": skipped,
     }
+
+    push_every = config.get("push_on_every_run", False)
+    event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+    push_scheduled = event_name == "schedule"
+    # 仅交易日推送；盘中（或 GitHub 定时任务）才推送，避免手动/改代码触发刷屏
+    push_enabled = trading is True and (in_session or event_name == "schedule")
+    # 定时任务：无论是否触发阈值都推送汇总（飞书 + 微信）；盘中触发阈值也推送
+    want_push = push_enabled and (bool(hit_keys) or (push_every and push_scheduled))
+
+    # 兜底去重：同一天同一时段（上午/下午）若已推送过相同内容，则不再重复推送
+    already = False
+    if want_push:
+        want = set(hit_keys)
+        for e in load_history():
+            if e.get("date") != now_str[:10] or e.get("slot") != slot:
+                continue
+            if not e.get("push_sent"):
+                continue
+            if set(e.get("hit_keys") or []) == want:
+                already = True
+                break
+    push_sent = want_push and not already
+    snapshot["push_sent"] = push_sent
+
     save_snapshot(snapshot)
     history = load_history()
     with open(DASHBOARD_HTML, "w", encoding="utf-8") as f:
@@ -1006,33 +1019,17 @@ def run(config_path, notify_enabled):
         log(f"以下代码未获取到行情，已跳过：{', '.join(skipped)}")
     log(f"监控表已生成：{DASHBOARD_HTML}")
 
-    push_every = config.get("push_on_every_run", False)
-    # 仅交易日盘中推送；GitHub 定时触发的运行即使延迟到收盘后也允许推送（GITHUB_EVENT_NAME=schedule）
-    event_name = os.environ.get("GITHUB_EVENT_NAME", "")
-    push_enabled = trading is True and (in_session or event_name == "schedule")
     if not push_enabled and (hit_keys or push_every):
         log("非交易日或非交易时段，跳过推送（阈值状态基于最近快照）")
-    if push_enabled and (hit_keys or push_every):
-        already = False
-        if hit_keys:
-            want = set(hit_keys)
-            for e in history:
-                if e.get("time") == now_str:
-                    continue
-                if e.get("date") != now_str[:10] or e.get("slot") != slot:
-                    continue
-                if set(e.get("hit_keys") or []) == want:
-                    already = True
-                    break
-        if hit_keys and already:
-            log("今日该时段已推送过相同触发项，跳过重复推送")
-        else:
-            title, detail, group_lines = build_push_text(group_data, o_summary, o_flags, group_hits)
-            if hit_keys and notify_enabled and config.get("notify_on_hit", True):
-                mac_notify("破线监控预警", detail)
-                log("已发送系统通知")
-            for r in notify.send_push(config, title, detail, bold_lines=group_lines):
-                log(f"手机推送：{r}")
+    if push_sent:
+        title, detail, group_lines = build_push_text(group_data, o_summary, o_flags, group_hits)
+        if hit_keys and notify_enabled and config.get("notify_on_hit", True):
+            mac_notify("破线监控预警", detail)
+            log("已发送系统通知")
+        for r in notify.send_push(config, title, detail, bold_lines=group_lines):
+            log(f"手机推送：{r}")
+    elif want_push and already:
+        log("今日该时段已推送过相同内容，跳过重复推送")
     return 0
 
 
