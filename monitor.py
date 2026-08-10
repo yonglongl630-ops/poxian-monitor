@@ -863,7 +863,8 @@ function updateBanner(){
   var hit=[];
   var os=summarize(LIVE.codes);
   KEYS.forEach(function(k){
-    var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
+    var parts=k.split('_');
+    var p=parts[0]==='ma5'?5:10, th=parseInt(parts[1],10);
     if(os[p].pct!=null&&os[p].pct>=th) hit.push(k);
   });
   var banner=document.getElementById('trigger-alert');
@@ -882,7 +883,8 @@ function updateGroupAlerts(){
     var codes=g.codes.map(function(code){return byCode[code];}).filter(Boolean);
     var sm=summarize(codes);
     var hit=KEYS.filter(function(k){
-      var p=parseInt(k.slice(2,4),10),th=parseInt(k.slice(5),10);
+      var parts=k.split('_');
+      var p=parts[0]==='ma5'?5:10, th=parseInt(parts[1],10);
       return sm[p].pct!=null&&sm[p].pct>=th;
     });
     var el=document.getElementById('group-alert-'+g.name);
