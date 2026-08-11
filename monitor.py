@@ -764,7 +764,7 @@ __TABS__
 </div>
 __OVERVIEW_PANEL__
 __GROUP_PANELS__
-<div class="foot">__NOTE__<br>此页面打开后每 60 秒自动拉取实时行情（交易时段内有效）；定时快照由 GitHub Actions 在交易日 10:30、14:30 生成。</div>
+<div class="foot">__NOTE__<br>此页面打开后每 60 秒自动拉取实时行情（交易时段内有效）；定时快照由 GitHub Actions 在交易日 10:30、14:30 生成。　页面版本：v20260811-3</div>
 <script>
 const LIVE = __LIVE_DATA__;
 const THRESH_NAMES = {"ma5_70":"破5日线 ≥ 70%","ma5_80":"破5日线 ≥ 80%","ma10_70":"破10日线 ≥ 70%","ma10_80":"破10日线 ≥ 80%"};
@@ -1040,11 +1040,12 @@ def run(config_path, notify_enabled):
 
     push_every = config.get("push_on_every_run", False)
     event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+    force_push = os.environ.get("FORCE_PUSH", "").lower() == "true"
     push_scheduled = event_name == "schedule"
     # 仅交易日推送；盘中（或 GitHub 定时任务）才推送，避免手动/改代码触发刷屏
-    push_enabled = trading is True and (in_session or event_name == "schedule")
-    # 定时任务：无论是否触发阈值都推送汇总（飞书 + 微信）；盘中触发阈值也推送
-    want_push = push_enabled and (bool(hit_keys) or (push_every and push_scheduled))
+    push_enabled = trading is True and (in_session or push_scheduled or force_push)
+    # 定时任务/漏跑补跑：无论是否触发阈值都推送汇总（飞书 + 微信）；盘中触发阈值也推送
+    want_push = push_enabled and (bool(hit_keys) or (push_every and (push_scheduled or force_push)))
 
     # 兜底去重：同一天同一时段（上午/下午）若已推送过相同内容，则不再重复推送
     already = False
