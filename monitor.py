@@ -282,9 +282,10 @@ def load_history(limit=60):
 
 
 def compute_trigger_days(history):
-    """按分组统计每个阈值项在交易日内的累计触发天数与连续触发天数。
+    """按分组统计每个阈值项在近15个交易日内的触发天数与连续触发天数。
 
     只统计 is_trading_day 为 True 的快照；同一交易日有多次快照时以最后一次为准。
+    cum = 滚动最近 15 个交易日内触发的天数；streak = 截至最近交易日的连续触发天数。
     返回 {group: {key: {"streak": int, "cum": int}}}。
     """
     tdates = sorted({e["date"] for e in history if e.get("is_trading_day") and e.get("date")})
@@ -312,7 +313,8 @@ def compute_trigger_days(history):
             if not item:
                 out[gname][key] = {"streak": 0, "cum": 0}
                 continue
-            cum = len(item["hit_dates"])
+            last15 = set(tdates[-15:])
+            cum = len(item["hit_dates"] & last15)
             streak = 0
             for date in reversed(tdates):
                 if not item["hit_by_date"].get(date):
@@ -560,11 +562,11 @@ def render_group_panel(name, group_data, thresholds, trigger_days=None):
         return (
             f'<div class="trig-row"><span>{label}</span>'
             f'<span class="{"red" if streak else ""}">连续 <b>{streak}</b> 天</span>'
-            f'<span class="trig-cum">累计 {cum} 天</span></div>'
+            f'<span class="trig-cum">近15日累计 {cum} 天</span></div>'
         )
 
     cards.append(
-        '<div class="card"><div class="label">破线触发天数（交易日）</div>'
+        '<div class="card"><div class="label">破线触发天数（近15个交易日）</div>'
         + days_row("ma5_70", "破5日线 ≥70%")
         + days_row("ma5_80", "破5日线 ≥80%")
         + days_row("ma10_70", "破10日线 ≥70%")
