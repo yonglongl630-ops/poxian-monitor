@@ -828,10 +828,12 @@ function updateSummaries(){
     [5,10].forEach(function(p){
       var panel=document.querySelector('.tab-panel[data-group="'+g.name+'"]');
       if(!panel) return;
-      var num=panel.querySelector('.c-below-n');
-      var valid=panel.querySelector('.c-valid');
-      var pctEl=panel.querySelector('.c-pct');
       var numDiv=panel.querySelector('.num[data-num="ma'+p+'"]');
+      if(!numDiv) return;
+      var card=numDiv.closest('.card');
+      var num=card.querySelector('.c-below-n');
+      var valid=card.querySelector('.c-valid');
+      var pctEl=card.querySelector('.c-pct');
       if(num) num.textContent=sm[p].below;
       if(valid) valid.textContent=' / '+sm[p].valid+' 只';
       if(pctEl) pctEl.textContent=sm[p].pct==null?'-':sm[p].pct.toFixed(2)+'%';
