@@ -244,7 +244,7 @@ def save_snapshot(snapshot):
         f.write(json.dumps(snapshot, ensure_ascii=False) + "\n")
 
 
-def load_history(limit=60):
+def load_history(limit=120):
     entries = []
     if not os.path.exists(HISTORY_JSONL):
         return entries
@@ -339,11 +339,15 @@ def pct_color(pct):
 
 
 def render_history_chart(history, group_names):
-    """破线比例趋势：每个分组的破5/破10比例各一条线。"""
+    """破线比例趋势：仅展示最近 15 个交易日的快照数据，每个分组的破5/破10比例各一条线。"""
+    tdates = sorted({e["date"] for e in history if e.get("is_trading_day") and e.get("date")})
+    if tdates:
+        window = set(tdates[-15:])
+        history = [e for e in history if e.get("date") in window]
     if len(history) < 2:
         return (
-            '<div class="chart-box"><h2>破线比例走势</h2>'
-            '<p style="color:var(--muted);font-size:13px">暂无走势数据，下次监控后显示。</p></div>'
+            '<div class="chart-box"><h2>破线比例走势（近15个交易日）</h2>'
+            '<p style="color:var(--muted);font-size:13px">暂无走势数据，积累 2 次以上监控后显示。</p></div>'
         )
     W, H, pad_l, pad_r, pad_t, pad_b = 820, 280, 44, 14, 18, 26
     n = len(history)
@@ -442,7 +446,7 @@ def render_history_chart(history, group_names):
         "横轴左端＝起始快照时间，右端＝最新更新时间。</div>"
     )
     return (
-        f'<div class="chart-box"><h2>破线比例走势（近 {len(history)} 次监控 · '
+        f'<div class="chart-box"><h2>破线比例走势（近15个交易日 · {len(history)} 次监控 · '
         f"最新 {short_ts(history[-1].get('time', ''))}）</h2>{svg}{note}</div>"
     )
 
