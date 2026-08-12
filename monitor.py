@@ -411,8 +411,14 @@ def render_history_chart(history, group_names):
             f'<text x="{pad_l - 6}" y="{y + 3:.1f}" fill="#64748b" font-size="10" '
             f'text-anchor="end">{v}%</text>'
         )
-    t0 = history[0].get("time", "")[:16]
-    t1 = history[-1].get("time", "")[:16]
+    def short_ts(ts):
+        try:
+            return f"{ts[5:7]}-{ts[8:10]} {ts[11:16]}"
+        except Exception:
+            return (ts or "")[:16]
+
+    t0 = "起始 " + short_ts(history[0].get("time", ""))
+    t1 = "最新 " + short_ts(history[-1].get("time", ""))
     xaxis = (
         f'<text x="{pad_l}" y="{H - 7}" fill="#64748b" font-size="10">{t0}</text>'
         f'<text x="{W - pad_r}" y="{H - 7}" fill="#64748b" font-size="10" text-anchor="end">{t1}</text>'
@@ -421,15 +427,24 @@ def render_history_chart(history, group_names):
     lx = pad_l
     for label, color, dash in series:
         legend_items.append(
-            f'<text x="{lx}" y="{pad_t - 8}" fill="{color}" font-size="11">'
+            f'<line x1="{lx}" y1="{pad_t - 10}" x2="{lx + 18}" y2="{pad_t - 10}" '
+            f'stroke="{color}" stroke-width="2.2" stroke-dasharray="{dash}"/>'
+            f'<text x="{lx + 24}" y="{pad_t - 8}" fill="{color}" font-size="11">'
             f'{html.escape(label)}</text>'
         )
-        lx += 30 + len(label) * 14
+        lx += 24 + len(label) * 14 + 14
     svg = (
         f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;display:block">'
         + yaxis + refs + "".join(marks) + xaxis + "".join(legend_items) + "</svg>"
     )
-    return f'<div class="chart-box"><h2>破线比例走势（近 {len(history)} 次监控）</h2>{svg}</div>'
+    note = (
+        '<div class="chart-note">图例：实线＝破5日线比例，虚线＝破10日线比例，颜色区分分组；'
+        "横轴左端＝起始快照时间，右端＝最新更新时间。</div>"
+    )
+    return (
+        f'<div class="chart-box"><h2>破线比例走势（近 {len(history)} 次监控 · '
+        f"最新 {short_ts(history[-1].get('time', ''))}）</h2>{svg}{note}</div>"
+    )
 
 
 def render_threshold_intro():
@@ -715,6 +730,9 @@ border:1px solid var(--border);background:var(--card);color:var(--muted)}
 .bar-label .bar-num{color:var(--muted);font-size:12px}
 .bar-days{color:var(--orange);font-size:12px}
 .bar-val.red{color:var(--red)}.bar-val.orange{color:var(--orange)}.bar-val.green{color:var(--green)}
+.chart-note{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.8}
+.disclaimer{margin-bottom:14px;padding:9px 14px;border-radius:10px;font-size:13px;color:var(--muted);
+text-align:center;background:rgba(245,158,11,.07);border:1px dashed rgba(245,158,11,.35)}
 .bar-track{position:relative;height:18px;background:#0b1020;border:1px solid var(--border);border-radius:9px;overflow:visible}
 .bar-fill{position:absolute;top:0;left:0;bottom:0;border-radius:9px;background:var(--green);opacity:.85}
 .bar-fill.orange{background:var(--orange)}
@@ -761,6 +779,7 @@ background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
   <button class="btn" id="refreshBtn">立即刷新</button>
 </div>
 __BANNER__
+<div class="disclaimer">投资有风险，入市需谨慎。本页数据仅供研究参考，不构成投资建议。</div>
 <div class="tabs">
 __TABS__
 </div>
