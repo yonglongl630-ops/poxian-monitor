@@ -82,27 +82,27 @@ background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
 <div class="top">
   <div>
     <h1>破线监控</h1>
-    <div class="meta">更新时间：<span id="gen-time">2026-09-02 14:57:11</span>　市场：交易中　自选股总数：31</div>
+    <div class="meta">更新时间：<span id="gen-time">2026-09-03 13:16:48</span>　市场：交易中　自选股总数：31</div>
   </div>
   <button class="btn" id="refreshBtn">立即刷新</button>
 </div>
-<div class="banner warn" id="trigger-alert">⚠ 阈值触发：破5日线 ≥ 70%（总体）、破10日线 ≥ 70%（总体），请关注破线风险！</div>
+<div class="banner warn" id="trigger-alert">⚠ 阈值触发：破5日线 ≥ 70%（总体）、破5日线 ≥ 80%（总体）、破10日线 ≥ 70%（总体），请关注破线风险！</div>
 <div class="disclaimer">投资有风险，入市需谨慎。本页数据仅供研究参考，不构成投资建议。</div>
 <div class="tabs">
 <button class="tab active" data-tab="overview">总览</button><button class="tab" data-tab="景气">景气</button><button class="tab" data-tab="收息">收息</button>
 </div>
 <div id="tab-overview" class="tab-panel"><div class="bars"><h2>破线比例一览（0-100%）</h2><div class="bar-item" data-group="景气" data-period="5">
 <div class="bar-label"><span>景气 · 破5日线</span>
-<span class="bar-val red">77.27%</span>
-<span class="bar-num">17/22 只</span><span class="bar-days">≥70% 连续1个交易日</span></div>
+<span class="bar-val red">90.91%</span>
+<span class="bar-num">20/22 只</span><span class="bar-days">≥70% 连续2个交易日</span></div>
 <div class="bar-track">
-<div class="bar-fill red" style="width:77.27%"></div>
+<div class="bar-fill red" style="width:90.91%"></div>
 <div class="bar-mark" style="left:70%"><i></i><em>70%</em></div>
 <div class="bar-mark" style="left:80%"><i></i><em>80%</em></div>
 </div></div><div class="bar-item" data-group="景气" data-period="10">
 <div class="bar-label"><span>景气 · 破10日线</span>
 <span class="bar-val red">77.27%</span>
-<span class="bar-num">17/22 只</span><span class="bar-days">≥70% 连续1个交易日</span></div>
+<span class="bar-num">17/22 只</span><span class="bar-days">≥70% 连续2个交易日</span></div>
 <div class="bar-track">
 <div class="bar-fill red" style="width:77.27%"></div>
 <div class="bar-mark" style="left:70%"><i></i><em>70%</em></div>
@@ -117,326 +117,313 @@ background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
 <div class="bar-mark" style="left:80%"><i></i><em>80%</em></div>
 </div></div><div class="bar-item" data-group="收息" data-period="10">
 <div class="bar-label"><span>收息 · 破10日线</span>
-<span class="bar-val orange">66.67%</span>
-<span class="bar-num">6/9 只</span></div>
+<span class="bar-val orange">55.56%</span>
+<span class="bar-num">5/9 只</span></div>
 <div class="bar-track">
-<div class="bar-fill orange" style="width:66.67%"></div>
+<div class="bar-fill orange" style="width:55.56%"></div>
 <div class="bar-mark" style="left:70%"><i></i><em>70%</em></div>
 <div class="bar-mark" style="left:80%"><i></i><em>80%</em></div>
-</div></div></div><div class="chart-box"><h2>破线比例走势（近15个交易日 · 53 次监控 · 最新 09-02 14:57）</h2><svg viewBox="0 0 820 280" style="width:100%;height:auto;display:block"><text x="38" y="257.0" fill="#64748b" font-size="10" text-anchor="end">0%</text><text x="38" y="139.0" fill="#64748b" font-size="10" text-anchor="end">50%</text><text x="38" y="21.0" fill="#64748b" font-size="10" text-anchor="end">100%</text><line x1="44" y1="88.8" x2="806" y2="88.8" stroke="#334155" stroke-dasharray="4,4"/><text x="804" y="83.8" fill="#64748b" font-size="10" text-anchor="end">70%</text><line x1="44" y1="65.2" x2="806" y2="65.2" stroke="#334155" stroke-dasharray="4,4"/><text x="804" y="60.2" fill="#64748b" font-size="10" text-anchor="end">80%</text><path d="M 44.0,168.2 L 58.7,168.2 L 73.3,168.2 L 88.0,82.4 L 102.6,82.4 L 117.3,168.2 L 131.9,168.2 L 146.6,221.8 L 161.2,221.8 L 175.9,221.8 L 190.5,243.3 L 205.2,243.3 L 219.8,200.4 L 234.5,200.4 L 249.2,211.1 L 263.8,39.5 L 278.5,39.5 L 293.1,39.5 L 307.8,50.2 L 322.4,39.5 L 337.1,39.5 L 351.7,40.5 L 366.4,44.2 L 381.0,71.6 L 395.7,71.6 L 410.3,82.4 L 425.0,82.4 L 439.7,60.9 L 454.3,60.9 L 469.0,60.9 L 483.6,60.9 L 498.3,50.2 L 512.9,50.2 L 527.6,50.2 L 542.2,60.9 L 556.9,60.9 L 571.5,114.5 L 586.2,114.5 L 600.8,114.5 L 615.5,114.5 L 630.2,200.4 L 644.8,136.0 L 659.5,103.8 L 674.1,211.1 L 688.8,211.1 L 703.4,103.8 L 718.1,103.8 L 732.7,114.5 L 747.4,103.8 L 762.0,60.9 L 776.7,60.9 L 791.3,71.6 L 806.0,71.6" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray=""/><circle cx="806.0" cy="71.6" r="3.2" fill="#3b82f6"/><path d="M 44.0,232.5 L 58.7,232.5 L 73.3,232.5 L 88.0,189.6 L 102.6,189.6 L 117.3,211.1 L 131.9,211.1 L 146.6,232.5 L 161.2,232.5 L 175.9,232.5 L 190.5,232.5 L 205.2,232.5 L 219.8,200.4 L 234.5,200.4 L 249.2,211.1 L 263.8,82.4 L 278.5,82.4 L 293.1,82.4 L 307.8,71.6 L 322.4,60.9 L 337.1,60.9 L 351.7,63.0 L 366.4,57.3 L 381.0,82.4 L 395.7,82.4 L 410.3,103.8 L 425.0,103.8 L 439.7,71.6 L 454.3,71.6 L 469.0,82.4 L 483.6,82.4 L 498.3,50.2 L 512.9,50.2 L 527.6,50.2 L 542.2,60.9 L 556.9,60.9 L 571.5,50.2 L 586.2,50.2 L 600.8,50.2 L 615.5,50.2 L 630.2,114.5 L 644.8,125.3 L 659.5,103.8 L 674.1,211.1 L 688.8,211.1 L 703.4,146.7 L 718.1,157.5 L 732.7,136.0 L 747.4,136.0 L 762.0,82.4 L 776.7,82.4 L 791.3,71.6 L 806.0,71.6" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="6,4"/><circle cx="806.0" cy="71.6" r="3.2" fill="#3b82f6"/><path d="M 44.0,136.0 L 58.7,136.0 L 73.3,136.0 L 88.0,77.0 L 102.6,77.0 L 117.3,47.5 L 131.9,47.5 L 146.6,77.0 L 161.2,77.0 L 175.9,77.0 L 190.5,77.0 L 205.2,77.0 L 219.8,77.0 L 234.5,77.0 L 249.2,77.0 L 263.8,106.5 L 278.5,106.5 L 293.1,106.5 L 307.8,77.0 L 322.4,165.5 L 337.1,165.5 L 351.7,175.3 L 366.4,96.7 L 381.0,165.5 L 395.7,165.5 L 410.3,165.5 L 425.0,165.5 L 439.7,175.3 L 454.3,175.3 L 469.0,175.3 L 483.6,175.3 L 498.3,175.3 L 512.9,175.3 L 527.6,175.3 L 542.2,175.3 L 556.9,175.3 L 571.5,201.6 L 586.2,201.6 L 600.8,201.6 L 615.5,201.6 L 630.2,96.7 L 644.8,96.7 L 659.5,96.7 L 674.1,96.7 L 688.8,96.7 L 703.4,96.7 L 718.1,96.7 L 732.7,96.7 L 747.4,96.7 L 762.0,96.7 L 776.7,96.7 L 791.3,122.9 L 806.0,122.9" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray=""/><circle cx="806.0" cy="122.9" r="3.2" fill="#f59e0b"/><path d="M 44.0,77.0 L 58.7,47.5 L 73.3,47.5 L 88.0,47.5 L 102.6,47.5 L 117.3,47.5 L 131.9,47.5 L 146.6,77.0 L 161.2,77.0 L 175.9,77.0 L 190.5,77.0 L 205.2,77.0 L 219.8,47.5 L 234.5,47.5 L 249.2,77.0 L 263.8,106.5 L 278.5,106.5 L 293.1,106.5 L 307.8,106.5 L 322.4,136.0 L 337.1,136.0 L 351.7,175.3 L 366.4,96.7 L 381.0,165.5 L 395.7,165.5 L 410.3,195.0 L 425.0,195.0 L 439.7,122.9 L 454.3,122.9 L 469.0,149.1 L 483.6,149.1 L 498.3,175.3 L 512.9,175.3 L 527.6,175.3 L 542.2,201.6 L 556.9,201.6 L 571.5,201.6 L 586.2,201.6 L 600.8,201.6 L 615.5,201.6 L 630.2,175.3 L 644.8,122.9 L 659.5,122.9 L 674.1,122.9 L 688.8,122.9 L 703.4,122.9 L 718.1,122.9 L 732.7,122.9 L 747.4,122.9 L 762.0,96.7 L 776.7,96.7 L 791.3,96.7 L 806.0,96.7" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="6,4"/><circle cx="806.0" cy="96.7" r="3.2" fill="#f59e0b"/><text x="44" y="273" fill="#64748b" font-size="10">起始 08-12 15:00</text><text x="806" y="273" fill="#64748b" font-size="10" text-anchor="end">最新 09-02 14:57</text><line x1="44" y1="8" x2="62" y2="8" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray=""/><text x="68" y="10" fill="#3b82f6" font-size="11">景气 破5</text><line x1="152" y1="8" x2="170" y2="8" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="6,4"/><text x="176" y="10" fill="#3b82f6" font-size="11">景气 破10</text><line x1="274" y1="8" x2="292" y2="8" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray=""/><text x="298" y="10" fill="#f59e0b" font-size="11">收息 破5</text><line x1="382" y1="8" x2="400" y2="8" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="6,4"/><text x="406" y="10" fill="#f59e0b" font-size="11">收息 破10</text></svg><div class="chart-note">图例：实线＝破5日线比例，虚线＝破10日线比例，颜色区分分组；横轴左端＝起始快照时间，右端＝最新更新时间。</div></div><div class="bars intro-box"><h2>监控阈值介绍详情</h2><ul class="intro-list"><li><b>破5日线</b>：最近 5 个交易日收盘均价（前复权，交易时段并入实时价）；“破线”＝现价低于 5 日线。</li><li><b>破10日线</b>：最近 10 个交易日收盘均价（前复权，交易时段并入实时价）；“破线”＝现价低于 10 日线。</li><li><b>阈值 70% / 80%</b>：当总体或任一分组的破线比例达到 70% / 80% 时，触发红色预警并推送（飞书 @所有人 + 微信）。</li><li><b>分组</b>：景气、收息两个板块分别统计、互不合并；分组触发显示在各自页签的阈值徽标与比例条中。</li></ul></div></div>
-<div id="tab-景气" class="tab-panel" data-group="景气" hidden><div class="banner warn group-alert" id="group-alert-景气">⚠ 景气分组触发：破5日线 ≥ 70%、破10日线 ≥ 70%，请关注破线风险！</div><h2 class="panel-title">景气 分组</h2><div class="cards"><div class="card"><div class="label">自选股总数</div><div class="num">22</div><div class="sub">有效样本：MA5 22 只 / MA10 22 只</div></div><div class="card"><div class="label">破5日线（现价 &lt; MA5）</div><div class="num red" data-num="ma5"><span class="c-below-n">17</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 22 只</span></div><div class="sub">比例：<span class="c-pct">77.27%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破10日线（现价 &lt; MA10）</div><div class="num red" data-num="ma10"><span class="c-below-n">17</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 22 只</span></div><div class="sub">比例：<span class="c-pct">77.27%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破线触发天数（近15个交易日）</div><div class="trig-row"><span>破5日线 ≥70%</span><span class="red">连续 <b>1</b> 天</span><span class="trig-cum">近15日累计 7 天</span></div><div class="trig-row"><span>破5日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 5 天</span></div><div class="trig-row"><span>破10日线 ≥70%</span><span class="red">连续 <b>1</b> 天</span><span class="trig-cum">近15日累计 7 天</span></div><div class="trig-row"><span>破10日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 3 天</span></div></div></div><div class="chips"><span class="chip hit" data-key="ma5_70" data-streak="1">破5日线 ≥ 70%：已触发 · 连续1个交易日</span><span class="chip " data-key="ma5_80" data-streak="0">破5日线 ≥ 80%：未触发</span><span class="chip hit" data-key="ma10_70" data-streak="1">破10日线 ≥ 70%：已触发 · 连续1个交易日</span><span class="chip " data-key="ma10_80" data-streak="0">破10日线 ≥ 80%：未触发</span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th><th>MA5</th><th>距MA5</th><th>破5日线</th><th>MA10</th><th>距MA10</th><th>破10日线</th></tr></thead><tbody><tr class="both" data-code="688268">
+</div></div></div><div class="chart-box"><h2>破线比例走势（近15个交易日 · 51 次监控 · 最新 09-03 13:16）</h2><svg viewBox="0 0 820 280" style="width:100%;height:auto;display:block"><text x="38" y="257.0" fill="#64748b" font-size="10" text-anchor="end">0%</text><text x="38" y="139.0" fill="#64748b" font-size="10" text-anchor="end">50%</text><text x="38" y="21.0" fill="#64748b" font-size="10" text-anchor="end">100%</text><line x1="44" y1="88.8" x2="806" y2="88.8" stroke="#334155" stroke-dasharray="4,4"/><text x="804" y="83.8" fill="#64748b" font-size="10" text-anchor="end">70%</text><line x1="44" y1="65.2" x2="806" y2="65.2" stroke="#334155" stroke-dasharray="4,4"/><text x="804" y="60.2" fill="#64748b" font-size="10" text-anchor="end">80%</text><path d="M 44.0,82.4 L 59.2,82.4 L 74.5,168.2 L 89.7,168.2 L 105.0,221.8 L 120.2,221.8 L 135.4,221.8 L 150.7,243.3 L 165.9,243.3 L 181.2,200.4 L 196.4,200.4 L 211.6,211.1 L 226.9,39.5 L 242.1,39.5 L 257.4,39.5 L 272.6,50.2 L 287.8,39.5 L 303.1,39.5 L 318.3,40.5 L 333.6,44.2 L 348.8,71.6 L 364.0,71.6 L 379.3,82.4 L 394.5,82.4 L 409.8,60.9 L 425.0,60.9 L 440.2,60.9 L 455.5,60.9 L 470.7,50.2 L 486.0,50.2 L 501.2,50.2 L 516.4,60.9 L 531.7,60.9 L 546.9,114.5 L 562.2,114.5 L 577.4,114.5 L 592.6,114.5 L 607.9,200.4 L 623.1,136.0 L 638.4,103.8 L 653.6,211.1 L 668.8,211.1 L 684.1,103.8 L 699.3,103.8 L 714.6,114.5 L 729.8,103.8 L 745.0,60.9 L 760.3,60.9 L 775.5,71.6 L 790.8,71.6 L 806.0,39.5" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray=""/><circle cx="806.0" cy="39.5" r="3.2" fill="#3b82f6"/><path d="M 44.0,189.6 L 59.2,189.6 L 74.5,211.1 L 89.7,211.1 L 105.0,232.5 L 120.2,232.5 L 135.4,232.5 L 150.7,232.5 L 165.9,232.5 L 181.2,200.4 L 196.4,200.4 L 211.6,211.1 L 226.9,82.4 L 242.1,82.4 L 257.4,82.4 L 272.6,71.6 L 287.8,60.9 L 303.1,60.9 L 318.3,63.0 L 333.6,57.3 L 348.8,82.4 L 364.0,82.4 L 379.3,103.8 L 394.5,103.8 L 409.8,71.6 L 425.0,71.6 L 440.2,82.4 L 455.5,82.4 L 470.7,50.2 L 486.0,50.2 L 501.2,50.2 L 516.4,60.9 L 531.7,60.9 L 546.9,50.2 L 562.2,50.2 L 577.4,50.2 L 592.6,50.2 L 607.9,114.5 L 623.1,125.3 L 638.4,103.8 L 653.6,211.1 L 668.8,211.1 L 684.1,146.7 L 699.3,157.5 L 714.6,136.0 L 729.8,136.0 L 745.0,82.4 L 760.3,82.4 L 775.5,71.6 L 790.8,71.6 L 806.0,71.6" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="6,4"/><circle cx="806.0" cy="71.6" r="3.2" fill="#3b82f6"/><path d="M 44.0,77.0 L 59.2,77.0 L 74.5,47.5 L 89.7,47.5 L 105.0,77.0 L 120.2,77.0 L 135.4,77.0 L 150.7,77.0 L 165.9,77.0 L 181.2,77.0 L 196.4,77.0 L 211.6,77.0 L 226.9,106.5 L 242.1,106.5 L 257.4,106.5 L 272.6,77.0 L 287.8,165.5 L 303.1,165.5 L 318.3,175.3 L 333.6,96.7 L 348.8,165.5 L 364.0,165.5 L 379.3,165.5 L 394.5,165.5 L 409.8,175.3 L 425.0,175.3 L 440.2,175.3 L 455.5,175.3 L 470.7,175.3 L 486.0,175.3 L 501.2,175.3 L 516.4,175.3 L 531.7,175.3 L 546.9,201.6 L 562.2,201.6 L 577.4,201.6 L 592.6,201.6 L 607.9,96.7 L 623.1,96.7 L 638.4,96.7 L 653.6,96.7 L 668.8,96.7 L 684.1,96.7 L 699.3,96.7 L 714.6,96.7 L 729.8,96.7 L 745.0,96.7 L 760.3,96.7 L 775.5,122.9 L 790.8,122.9 L 806.0,122.9" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray=""/><circle cx="806.0" cy="122.9" r="3.2" fill="#f59e0b"/><path d="M 44.0,47.5 L 59.2,47.5 L 74.5,47.5 L 89.7,47.5 L 105.0,77.0 L 120.2,77.0 L 135.4,77.0 L 150.7,77.0 L 165.9,77.0 L 181.2,47.5 L 196.4,47.5 L 211.6,77.0 L 226.9,106.5 L 242.1,106.5 L 257.4,106.5 L 272.6,106.5 L 287.8,136.0 L 303.1,136.0 L 318.3,175.3 L 333.6,96.7 L 348.8,165.5 L 364.0,165.5 L 379.3,195.0 L 394.5,195.0 L 409.8,122.9 L 425.0,122.9 L 440.2,149.1 L 455.5,149.1 L 470.7,175.3 L 486.0,175.3 L 501.2,175.3 L 516.4,201.6 L 531.7,201.6 L 546.9,201.6 L 562.2,201.6 L 577.4,201.6 L 592.6,201.6 L 607.9,175.3 L 623.1,122.9 L 638.4,122.9 L 653.6,122.9 L 668.8,122.9 L 684.1,122.9 L 699.3,122.9 L 714.6,122.9 L 729.8,122.9 L 745.0,96.7 L 760.3,96.7 L 775.5,96.7 L 790.8,96.7 L 806.0,122.9" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="6,4"/><circle cx="806.0" cy="122.9" r="3.2" fill="#f59e0b"/><text x="44" y="273" fill="#64748b" font-size="10">起始 08-13 15:03</text><text x="806" y="273" fill="#64748b" font-size="10" text-anchor="end">最新 09-03 13:16</text><line x1="44" y1="8" x2="62" y2="8" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray=""/><text x="68" y="10" fill="#3b82f6" font-size="11">景气 破5</text><line x1="152" y1="8" x2="170" y2="8" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="6,4"/><text x="176" y="10" fill="#3b82f6" font-size="11">景气 破10</text><line x1="274" y1="8" x2="292" y2="8" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray=""/><text x="298" y="10" fill="#f59e0b" font-size="11">收息 破5</text><line x1="382" y1="8" x2="400" y2="8" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="6,4"/><text x="406" y="10" fill="#f59e0b" font-size="11">收息 破10</text></svg><div class="chart-note">图例：实线＝破5日线比例，虚线＝破10日线比例，颜色区分分组；横轴左端＝起始快照时间，右端＝最新更新时间。</div></div><div class="bars intro-box"><h2>监控阈值介绍详情</h2><ul class="intro-list"><li><b>破5日线</b>：最近 5 个交易日收盘均价（前复权，交易时段并入实时价）；“破线”＝现价低于 5 日线。</li><li><b>破10日线</b>：最近 10 个交易日收盘均价（前复权，交易时段并入实时价）；“破线”＝现价低于 10 日线。</li><li><b>阈值 70% / 80%</b>：当总体或任一分组的破线比例达到 70% / 80% 时，触发红色预警并推送（飞书 @所有人 + 微信）。</li><li><b>分组</b>：景气、收息两个板块分别统计、互不合并；分组触发显示在各自页签的阈值徽标与比例条中。</li></ul></div></div>
+<div id="tab-景气" class="tab-panel" data-group="景气" hidden><div class="banner warn group-alert" id="group-alert-景气">⚠ 景气分组触发：破5日线 ≥ 70%、破5日线 ≥ 80%、破10日线 ≥ 70%，请关注破线风险！</div><h2 class="panel-title">景气 分组</h2><div class="cards"><div class="card"><div class="label">自选股总数</div><div class="num">22</div><div class="sub">有效样本：MA5 22 只 / MA10 22 只</div></div><div class="card"><div class="label">破5日线（现价 &lt; MA5）</div><div class="num red" data-num="ma5"><span class="c-below-n">20</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 22 只</span></div><div class="sub">比例：<span class="c-pct">90.91%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破10日线（现价 &lt; MA10）</div><div class="num red" data-num="ma10"><span class="c-below-n">17</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 22 只</span></div><div class="sub">比例：<span class="c-pct">77.27%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破线触发天数（近15个交易日）</div><div class="trig-row"><span>破5日线 ≥70%</span><span class="red">连续 <b>2</b> 天</span><span class="trig-cum">近15日累计 8 天</span></div><div class="trig-row"><span>破5日线 ≥80%</span><span class="red">连续 <b>1</b> 天</span><span class="trig-cum">近15日累计 6 天</span></div><div class="trig-row"><span>破10日线 ≥70%</span><span class="red">连续 <b>2</b> 天</span><span class="trig-cum">近15日累计 8 天</span></div><div class="trig-row"><span>破10日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 3 天</span></div></div></div><div class="chips"><span class="chip hit" data-key="ma5_70" data-streak="2">破5日线 ≥ 70%：已触发 · 连续2个交易日</span><span class="chip hit" data-key="ma5_80" data-streak="1">破5日线 ≥ 80%：已触发 · 连续1个交易日</span><span class="chip hit" data-key="ma10_70" data-streak="2">破10日线 ≥ 70%：已触发 · 连续2个交易日</span><span class="chip " data-key="ma10_80" data-streak="0">破10日线 ≥ 80%：未触发</span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th><th>MA5</th><th>距MA5</th><th>破5日线</th><th>MA10</th><th>距MA10</th><th>破10日线</th></tr></thead><tbody><tr class="both" data-code="688268">
 <td>1</td>
 <td>688268</td>
 <td style="text-align:left">华特气体</td>
-<td class="c-price">137.56</td>
-<td class="c-pct down">-2.85%</td>
-<td class="c-ma5">145.04</td>
-<td class="c-dist5">-5.16%</td>
+<td class="c-price">134.36</td>
+<td class="c-pct down">-2.33%</td>
+<td class="c-ma5">142.26</td>
+<td class="c-dist5">-5.55%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">144.08</td>
-<td class="c-dist10">-4.53%</td>
+<td class="c-ma10">143.38</td>
+<td class="c-dist10">-6.29%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="both" data-code="002738">
+<tr class="both" data-code="000833">
 <td>2</td>
-<td>002738</td>
-<td style="text-align:left">中矿资源</td>
-<td class="c-price">49.42</td>
-<td class="c-pct down">-5.05%</td>
-<td class="c-ma5">52.10</td>
-<td class="c-dist5">-5.15%</td>
+<td>000833</td>
+<td style="text-align:left">粤桂股份</td>
+<td class="c-price">19.87</td>
+<td class="c-pct down">-2.31%</td>
+<td class="c-ma5">20.79</td>
+<td class="c-dist5">-4.42%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">52.16</td>
-<td class="c-dist10">-5.25%</td>
+<td class="c-ma10">20.97</td>
+<td class="c-dist10">-5.24%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="both" data-code="688825">
+<tr class="both" data-code="301269">
 <td>3</td>
-<td>688825</td>
-<td style="text-align:left">长鑫科技</td>
-<td class="c-price">54.38</td>
-<td class="c-pct down">-3.75%</td>
-<td class="c-ma5">57.32</td>
-<td class="c-dist5">-5.13%</td>
+<td>301269</td>
+<td style="text-align:left">华大九天</td>
+<td class="c-price">92.30</td>
+<td class="c-pct down">-1.90%</td>
+<td class="c-ma5">95.96</td>
+<td class="c-dist5">-3.82%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">57.14</td>
-<td class="c-dist10">-4.83%</td>
-<td class="c-b10"><span class="badge y">破线</span></td>
-</tr>
-<tr class="both" data-code="hk02498">
-<td>4</td>
-<td>hk02498</td>
-<td style="text-align:left">速腾聚创</td>
-<td class="c-price">17.39</td>
-<td class="c-pct down">-3.39%</td>
-<td class="c-ma5">18.31</td>
-<td class="c-dist5">-5.01%</td>
-<td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">18.91</td>
-<td class="c-dist10">-8.03%</td>
+<td class="c-ma10">94.96</td>
+<td class="c-dist10">-2.80%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="688106">
-<td>5</td>
+<td>4</td>
 <td>688106</td>
 <td style="text-align:left">金宏气体</td>
-<td class="c-price">25.96</td>
-<td class="c-pct down">-2.59%</td>
-<td class="c-ma5">27.32</td>
-<td class="c-dist5">-4.99%</td>
+<td class="c-price">25.98</td>
+<td class="c-pct down">-0.04%</td>
+<td class="c-ma5">26.88</td>
+<td class="c-dist5">-3.36%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">27.30</td>
-<td class="c-dist10">-4.92%</td>
+<td class="c-ma10">27.17</td>
+<td class="c-dist10">-4.37%</td>
+<td class="c-b10"><span class="badge y">破线</span></td>
+</tr>
+<tr class="both" data-code="688825">
+<td>5</td>
+<td>688825</td>
+<td style="text-align:left">长鑫科技</td>
+<td class="c-price">54.56</td>
+<td class="c-pct up">0.44%</td>
+<td class="c-ma5">56.40</td>
+<td class="c-dist5">-3.26%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">56.83</td>
+<td class="c-dist10">-4.00%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="002192">
 <td>6</td>
 <td>002192</td>
 <td style="text-align:left">融捷股份</td>
-<td class="c-price">69.21</td>
-<td class="c-pct down">-3.46%</td>
-<td class="c-ma5">72.60</td>
-<td class="c-dist5">-4.67%</td>
+<td class="c-price">69.53</td>
+<td class="c-pct up">0.40%</td>
+<td class="c-ma5">71.78</td>
+<td class="c-dist5">-3.13%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">72.26</td>
-<td class="c-dist10">-4.22%</td>
+<td class="c-ma10">72.62</td>
+<td class="c-dist10">-4.26%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="both" data-code="000833">
+<tr class="both" data-code="002738">
 <td>7</td>
-<td>000833</td>
-<td style="text-align:left">粤桂股份</td>
-<td class="c-price">20.32</td>
-<td class="c-pct down">-3.47%</td>
-<td class="c-ma5">21.06</td>
-<td class="c-dist5">-3.50%</td>
+<td>002738</td>
+<td style="text-align:left">中矿资源</td>
+<td class="c-price">50.21</td>
+<td class="c-pct up">1.85%</td>
+<td class="c-ma5">51.79</td>
+<td class="c-dist5">-3.04%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">21.08</td>
-<td class="c-dist10">-3.62%</td>
-<td class="c-b10"><span class="badge y">破线</span></td>
-</tr>
-<tr class="both" data-code="002594">
-<td>8</td>
-<td>002594</td>
-<td style="text-align:left">比亚迪</td>
-<td class="c-price">86.81</td>
-<td class="c-pct down">-2.14%</td>
-<td class="c-ma5">89.51</td>
-<td class="c-dist5">-3.01%</td>
-<td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">90.26</td>
-<td class="c-dist10">-3.82%</td>
-<td class="c-b10"><span class="badge y">破线</span></td>
-</tr>
-<tr class="both" data-code="688181">
-<td>9</td>
-<td>688181</td>
-<td style="text-align:left">八亿时空</td>
-<td class="c-price">36.74</td>
-<td class="c-pct down">-2.34%</td>
-<td class="c-ma5">37.85</td>
-<td class="c-dist5">-2.94%</td>
-<td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">38.05</td>
-<td class="c-dist10">-3.44%</td>
-<td class="c-b10"><span class="badge y">破线</span></td>
-</tr>
-<tr class="both" data-code="301269">
-<td>10</td>
-<td>301269</td>
-<td style="text-align:left">华大九天</td>
-<td class="c-price">94.13</td>
-<td class="c-pct down">-3.57%</td>
-<td class="c-ma5">96.83</td>
-<td class="c-dist5">-2.79%</td>
-<td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">95.20</td>
-<td class="c-dist10">-1.12%</td>
+<td class="c-ma10">52.01</td>
+<td class="c-dist10">-3.46%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="603435">
-<td>11</td>
+<td>8</td>
 <td>603435</td>
 <td style="text-align:left">嘉德利</td>
-<td class="c-price">50.44</td>
-<td class="c-pct down">-1.37%</td>
-<td class="c-ma5">51.87</td>
-<td class="c-dist5">-2.75%</td>
+<td class="c-price">49.60</td>
+<td class="c-pct down">-1.59%</td>
+<td class="c-ma5">51.12</td>
+<td class="c-dist5">-2.97%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">50.65</td>
-<td class="c-dist10">-0.41%</td>
-<td class="c-b10"><span class="badge y">破线</span></td>
-</tr>
-<tr class="both" data-code="688981">
-<td>12</td>
-<td>688981</td>
-<td style="text-align:left">中芯国际</td>
-<td class="c-price">122.65</td>
-<td class="c-pct down">-2.74%</td>
-<td class="c-ma5">125.93</td>
-<td class="c-dist5">-2.61%</td>
-<td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">124.47</td>
-<td class="c-dist10">-1.46%</td>
+<td class="c-ma10">50.55</td>
+<td class="c-dist10">-1.87%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="603986">
-<td>13</td>
+<td>9</td>
 <td>603986</td>
 <td style="text-align:left">兆易创新</td>
-<td class="c-price">389.15</td>
-<td class="c-pct down">-0.98%</td>
-<td class="c-ma5">399.23</td>
-<td class="c-dist5">-2.53%</td>
+<td class="c-price">383.00</td>
+<td class="c-pct down">-1.51%</td>
+<td class="c-ma5">393.54</td>
+<td class="c-dist5">-2.68%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">397.84</td>
-<td class="c-dist10">-2.18%</td>
+<td class="c-ma10">395.76</td>
+<td class="c-dist10">-3.22%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="both" data-code="688270">
-<td>14</td>
-<td>688270</td>
-<td style="text-align:left">ST臻镭</td>
-<td class="c-price">57.69</td>
-<td class="c-pct up">0.35%</td>
-<td class="c-ma5">58.95</td>
-<td class="c-dist5">-2.13%</td>
+<tr class="both" data-code="hk02498">
+<td>10</td>
+<td>hk02498</td>
+<td style="text-align:left">速腾聚创</td>
+<td class="c-price">17.48</td>
+<td class="c-pct up">0.81%</td>
+<td class="c-ma5">17.94</td>
+<td class="c-dist5">-2.57%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">59.95</td>
-<td class="c-dist10">-3.77%</td>
+<td class="c-ma10">18.52</td>
+<td class="c-dist10">-5.63%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="000725">
-<td>15</td>
+<td>11</td>
 <td>000725</td>
 <td style="text-align:left">京东方Ａ</td>
-<td class="c-price">5.79</td>
-<td class="c-pct down">-2.03%</td>
-<td class="c-ma5">5.91</td>
-<td class="c-dist5">-2.10%</td>
+<td class="c-price">5.73</td>
+<td class="c-pct down">-1.04%</td>
+<td class="c-ma5">5.87</td>
+<td class="c-dist5">-2.42%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">5.87</td>
-<td class="c-dist10">-1.33%</td>
+<td class="c-ma10">5.85</td>
+<td class="c-dist10">-2.07%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="both" data-code="603125">
-<td>16</td>
-<td>603125</td>
-<td style="text-align:left">常青科技</td>
-<td class="c-price">22.81</td>
-<td class="c-pct down">-1.17%</td>
-<td class="c-ma5">23.12</td>
-<td class="c-dist5">-1.35%</td>
+<tr class="both" data-code="688181">
+<td>12</td>
+<td>688181</td>
+<td style="text-align:left">八亿时空</td>
+<td class="c-price">36.62</td>
+<td class="c-pct down">-0.25%</td>
+<td class="c-ma5">37.43</td>
+<td class="c-dist5">-2.16%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">22.99</td>
-<td class="c-dist10">-0.78%</td>
+<td class="c-ma10">37.83</td>
+<td class="c-dist10">-3.19%</td>
+<td class="c-b10"><span class="badge y">破线</span></td>
+</tr>
+<tr class="both" data-code="688270">
+<td>13</td>
+<td>688270</td>
+<td style="text-align:left">ST臻镭</td>
+<td class="c-price">57.10</td>
+<td class="c-pct down">-0.87%</td>
+<td class="c-ma5">58.09</td>
+<td class="c-dist5">-1.71%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">59.51</td>
+<td class="c-dist10">-4.04%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="688110">
-<td>17</td>
+<td>14</td>
 <td>688110</td>
 <td style="text-align:left">东芯股份</td>
-<td class="c-price">116.38</td>
-<td class="c-pct down">-1.37%</td>
-<td class="c-ma5">117.52</td>
-<td class="c-dist5">-0.97%</td>
+<td class="c-price">114.96</td>
+<td class="c-pct down">-1.24%</td>
+<td class="c-ma5">116.84</td>
+<td class="c-dist5">-1.61%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">116.61</td>
-<td class="c-dist10">-0.19%</td>
+<td class="c-ma10">116.67</td>
+<td class="c-dist10">-1.47%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="" data-code="159206">
+<tr class="both" data-code="688981">
+<td>15</td>
+<td>688981</td>
+<td style="text-align:left">中芯国际</td>
+<td class="c-price">123.32</td>
+<td class="c-pct up">0.63%</td>
+<td class="c-ma5">125.31</td>
+<td class="c-dist5">-1.59%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">124.24</td>
+<td class="c-dist10">-0.74%</td>
+<td class="c-b10"><span class="badge y">破线</span></td>
+</tr>
+<tr class="both" data-code="002594">
+<td>16</td>
+<td>002594</td>
+<td style="text-align:left">比亚迪</td>
+<td class="c-price">87.39</td>
+<td class="c-pct up">0.68%</td>
+<td class="c-ma5">88.68</td>
+<td class="c-dist5">-1.46%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">89.95</td>
+<td class="c-dist10">-2.84%</td>
+<td class="c-b10"><span class="badge y">破线</span></td>
+</tr>
+<tr class="both" data-code="603125">
+<td>17</td>
+<td>603125</td>
+<td style="text-align:left">常青科技</td>
+<td class="c-price">22.77</td>
+<td class="c-pct down">-0.18%</td>
+<td class="c-ma5">23.05</td>
+<td class="c-dist5">-1.22%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">22.99</td>
+<td class="c-dist10">-0.94%</td>
+<td class="c-b10"><span class="badge y">破线</span></td>
+</tr>
+<tr class="one" data-code="688798">
 <td>18</td>
-<td>159206</td>
-<td style="text-align:left">卫星ETF永赢</td>
-<td class="c-price">1.37</td>
-<td class="c-pct down">-0.73%</td>
-<td class="c-ma5">1.36</td>
-<td class="c-dist5">0.04%</td>
-<td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">1.35</td>
-<td class="c-dist10">1.41%</td>
+<td>688798</td>
+<td style="text-align:left">艾为电子</td>
+<td class="c-price">64.20</td>
+<td class="c-pct down">-2.13%</td>
+<td class="c-ma5">65.08</td>
+<td class="c-dist5">-1.36%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">60.29</td>
+<td class="c-dist10">6.48%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr>
-<tr class="" data-code="688521">
+<tr class="one" data-code="688521">
 <td>19</td>
 <td>688521</td>
 <td style="text-align:left">芯原股份</td>
-<td class="c-price">193.61</td>
-<td class="c-pct up">0.63%</td>
-<td class="c-ma5">193.37</td>
-<td class="c-dist5">0.12%</td>
-<td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">183.73</td>
-<td class="c-dist10">5.38%</td>
+<td class="c-price">190.30</td>
+<td class="c-pct down">-1.70%</td>
+<td class="c-ma5">192.69</td>
+<td class="c-dist5">-1.24%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">184.92</td>
+<td class="c-dist10">2.91%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr>
-<tr class="" data-code="688798">
+<tr class="one" data-code="159206">
 <td>20</td>
-<td>688798</td>
-<td style="text-align:left">艾为电子</td>
-<td class="c-price">65.61</td>
-<td class="c-pct up">0.94%</td>
-<td class="c-ma5">64.63</td>
-<td class="c-dist5">1.52%</td>
-<td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">59.27</td>
-<td class="c-dist10">10.69%</td>
+<td>159206</td>
+<td style="text-align:left">卫星ETF永赢</td>
+<td class="c-price">1.35</td>
+<td class="c-pct down">-0.95%</td>
+<td class="c-ma5">1.37</td>
+<td class="c-dist5">-0.92%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">1.35</td>
+<td class="c-dist10">0.34%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr>
 <tr class="" data-code="603893">
 <td>21</td>
 <td>603893</td>
 <td style="text-align:left">瑞芯微</td>
-<td class="c-price">197.41</td>
-<td class="c-pct down">-3.04%</td>
-<td class="c-ma5">190.78</td>
-<td class="c-dist5">3.48%</td>
+<td class="c-price">193.38</td>
+<td class="c-pct down">-2.08%</td>
+<td class="c-ma5">193.19</td>
+<td class="c-dist5">0.10%</td>
 <td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">184.30</td>
-<td class="c-dist10">7.11%</td>
+<td class="c-ma10">185.38</td>
+<td class="c-dist10">4.32%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr>
 <tr class="" data-code="688143">
 <td>22</td>
 <td>688143</td>
 <td style="text-align:left">长盈通</td>
-<td class="c-price">174.55</td>
-<td class="c-pct up">4.52%</td>
-<td class="c-ma5">167.67</td>
-<td class="c-dist5">4.10%</td>
+<td class="c-price">180.00</td>
+<td class="c-pct up">3.12%</td>
+<td class="c-ma5">169.01</td>
+<td class="c-dist5">6.50%</td>
 <td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">163.62</td>
-<td class="c-dist10">6.68%</td>
+<td class="c-ma10">166.67</td>
+<td class="c-dist10">8.00%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
-</tr></tbody></table></div></div><div id="tab-收息" class="tab-panel" data-group="收息" hidden><div class="banner warn group-alert" id="group-alert-收息" style="display:none">⚠ 收息分组触发：请关注破线风险！</div><h2 class="panel-title">收息 分组</h2><div class="cards"><div class="card"><div class="label">自选股总数</div><div class="num">9</div><div class="sub">有效样本：MA5 9 只 / MA10 9 只</div></div><div class="card"><div class="label">破5日线（现价 &lt; MA5）</div><div class="num orange" data-num="ma5"><span class="c-below-n">5</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 9 只</span></div><div class="sub">比例：<span class="c-pct">55.56%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破10日线（现价 &lt; MA10）</div><div class="num orange" data-num="ma10"><span class="c-below-n">6</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 9 只</span></div><div class="sub">比例：<span class="c-pct">66.67%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破线触发天数（近15个交易日）</div><div class="trig-row"><span>破5日线 ≥70%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 5 天</span></div><div class="trig-row"><span>破5日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 1 天</span></div><div class="trig-row"><span>破10日线 ≥70%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 5 天</span></div><div class="trig-row"><span>破10日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 4 天</span></div></div></div><div class="chips"><span class="chip " data-key="ma5_70" data-streak="0">破5日线 ≥ 70%：未触发</span><span class="chip " data-key="ma5_80" data-streak="0">破5日线 ≥ 80%：未触发</span><span class="chip " data-key="ma10_70" data-streak="0">破10日线 ≥ 70%：未触发</span><span class="chip " data-key="ma10_80" data-streak="0">破10日线 ≥ 80%：未触发</span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th><th>MA5</th><th>距MA5</th><th>破5日线</th><th>MA10</th><th>距MA10</th><th>破10日线</th></tr></thead><tbody><tr class="both" data-code="hk01405">
+</tr></tbody></table></div></div><div id="tab-收息" class="tab-panel" data-group="收息" hidden><div class="banner warn group-alert" id="group-alert-收息" style="display:none">⚠ 收息分组触发：请关注破线风险！</div><h2 class="panel-title">收息 分组</h2><div class="cards"><div class="card"><div class="label">自选股总数</div><div class="num">9</div><div class="sub">有效样本：MA5 9 只 / MA10 9 只</div></div><div class="card"><div class="label">破5日线（现价 &lt; MA5）</div><div class="num orange" data-num="ma5"><span class="c-below-n">5</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 9 只</span></div><div class="sub">比例：<span class="c-pct">55.56%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破10日线（现价 &lt; MA10）</div><div class="num orange" data-num="ma10"><span class="c-below-n">5</span><span class="c-valid" style="font-size:15px;color:var(--muted)"> / 9 只</span></div><div class="sub">比例：<span class="c-pct">55.56%</span>　阈值 ≥70% / ≥80%</div></div><div class="card"><div class="label">破线触发天数（近15个交易日）</div><div class="trig-row"><span>破5日线 ≥70%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 5 天</span></div><div class="trig-row"><span>破5日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 1 天</span></div><div class="trig-row"><span>破10日线 ≥70%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 4 天</span></div><div class="trig-row"><span>破10日线 ≥80%</span><span class="">连续 <b>0</b> 天</span><span class="trig-cum">近15日累计 3 天</span></div></div></div><div class="chips"><span class="chip " data-key="ma5_70" data-streak="0">破5日线 ≥ 70%：未触发</span><span class="chip " data-key="ma5_80" data-streak="0">破5日线 ≥ 80%：未触发</span><span class="chip " data-key="ma10_70" data-streak="0">破10日线 ≥ 70%：未触发</span><span class="chip " data-key="ma10_80" data-streak="0">破10日线 ≥ 80%：未触发</span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>代码</th><th>名称</th><th>现价</th><th>涨跌幅</th><th>MA5</th><th>距MA5</th><th>破5日线</th><th>MA10</th><th>距MA10</th><th>破10日线</th></tr></thead><tbody><tr class="both" data-code="hk01405">
 <td>1</td>
 <td>hk01405</td>
 <td style="text-align:left">达势股份</td>
-<td class="c-price">31.00</td>
-<td class="c-pct down">-3.67%</td>
-<td class="c-ma5">32.62</td>
-<td class="c-dist5">-4.97%</td>
+<td class="c-price">31.14</td>
+<td class="c-pct up">0.06%</td>
+<td class="c-ma5">32.44</td>
+<td class="c-dist5">-4.02%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">34.93</td>
-<td class="c-dist10">-11.26%</td>
-<td class="c-b10"><span class="badge y">破线</span></td>
-</tr>
-<tr class="both" data-code="hk00696">
-<td>2</td>
-<td>hk00696</td>
-<td style="text-align:left">中国民航信息网络</td>
-<td class="c-price">8.58</td>
-<td class="c-pct down">-0.75%</td>
-<td class="c-ma5">8.79</td>
-<td class="c-dist5">-2.44%</td>
-<td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">8.66</td>
-<td class="c-dist10">-0.90%</td>
+<td class="c-ma10">34.35</td>
+<td class="c-dist10">-9.34%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="hk01448">
-<td>3</td>
+<td>2</td>
 <td>hk01448</td>
 <td style="text-align:left">福寿园</td>
 <td class="c-price">2.64</td>
@@ -448,87 +435,100 @@ background:var(--card);color:var(--text);font-size:13px;cursor:pointer}
 <td class="c-dist10">-3.93%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="both" data-code="hk02669">
-<td>4</td>
-<td>hk02669</td>
-<td style="text-align:left">中海物业</td>
-<td class="c-price">3.45</td>
-<td class="c-pct down">-0.14%</td>
-<td class="c-ma5">3.48</td>
-<td class="c-dist5">-0.98%</td>
+<tr class="both" data-code="hk00696">
+<td>3</td>
+<td>hk00696</td>
+<td style="text-align:left">中国民航信息网络</td>
+<td class="c-price">8.63</td>
+<td class="c-pct up">0.47%</td>
+<td class="c-ma5">8.70</td>
+<td class="c-dist5">-0.84%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">3.52</td>
-<td class="c-dist10">-2.09%</td>
+<td class="c-ma10">8.70</td>
+<td class="c-dist10">-0.78%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="both" data-code="hk01066">
-<td>5</td>
+<td>4</td>
 <td>hk01066</td>
 <td style="text-align:left">威高股份</td>
-<td class="c-price">3.23</td>
-<td class="c-pct down">-0.92%</td>
-<td class="c-ma5">3.25</td>
-<td class="c-dist5">-0.77%</td>
+<td class="c-price">3.22</td>
+<td class="c-pct down">-0.31%</td>
+<td class="c-ma5">3.24</td>
+<td class="c-dist5">-0.65%</td>
 <td class="c-b5"><span class="badge y">破线</span></td>
-<td class="c-ma10">3.35</td>
-<td class="c-dist10">-3.79%</td>
+<td class="c-ma10">3.32</td>
+<td class="c-dist10">-3.09%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
-<tr class="one" data-code="hk06049">
+<tr class="one" data-code="hk06078">
+<td>5</td>
+<td>hk06078</td>
+<td style="text-align:left">海吉亚医疗</td>
+<td class="c-price">10.19</td>
+<td class="c-pct down">-0.88%</td>
+<td class="c-ma5">10.34</td>
+<td class="c-dist5">-1.45%</td>
+<td class="c-b5"><span class="badge y">破线</span></td>
+<td class="c-ma10">10.06</td>
+<td class="c-dist10">1.26%</td>
+<td class="c-b10"><span class="badge n">正常</span></td>
+</tr>
+<tr class="one" data-code="hk02669">
 <td>6</td>
-<td>hk06049</td>
-<td style="text-align:left">保利物业</td>
-<td class="c-price">28.10</td>
-<td class="c-pct up">0.64%</td>
-<td class="c-ma5">28.06</td>
-<td class="c-dist5">0.13%</td>
+<td>hk02669</td>
+<td style="text-align:left">中海物业</td>
+<td class="c-price">3.50</td>
+<td class="c-pct up">1.60%</td>
+<td class="c-ma5">3.47</td>
+<td class="c-dist5">0.69%</td>
 <td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">28.16</td>
-<td class="c-dist10">-0.22%</td>
+<td class="c-ma10">3.54</td>
+<td class="c-dist10">-1.15%</td>
 <td class="c-b10"><span class="badge y">破线</span></td>
 </tr>
 <tr class="" data-code="512890">
 <td>7</td>
 <td>512890</td>
 <td style="text-align:left">红利低波ETF华泰柏瑞</td>
-<td class="c-price">1.20</td>
-<td class="c-pct down">-0.58%</td>
-<td class="c-ma5">1.19</td>
-<td class="c-dist5">0.62%</td>
+<td class="c-price">1.21</td>
+<td class="c-pct up">0.67%</td>
+<td class="c-ma5">1.20</td>
+<td class="c-dist5">0.85%</td>
 <td class="c-b5"><span class="badge n">正常</span></td>
 <td class="c-ma10">1.19</td>
-<td class="c-dist10">0.99%</td>
+<td class="c-dist10">1.44%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr>
-<tr class="" data-code="hk06078">
+<tr class="" data-code="hk06049">
 <td>8</td>
-<td>hk06078</td>
-<td style="text-align:left">海吉亚医疗</td>
-<td class="c-price">10.26</td>
-<td class="c-pct down">-0.77%</td>
-<td class="c-ma5">10.18</td>
-<td class="c-dist5">0.75%</td>
+<td>hk06049</td>
+<td style="text-align:left">保利物业</td>
+<td class="c-price">28.30</td>
+<td class="c-pct up">0.71%</td>
+<td class="c-ma5">28.05</td>
+<td class="c-dist5">0.88%</td>
 <td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">10.02</td>
-<td class="c-dist10">2.45%</td>
+<td class="c-ma10">28.24</td>
+<td class="c-dist10">0.21%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr>
 <tr class="" data-code="hk00506">
 <td>9</td>
 <td>hk00506</td>
 <td style="text-align:left">中国食品</td>
-<td class="c-price">3.94</td>
-<td class="c-pct up">3.00%</td>
-<td class="c-ma5">3.83</td>
-<td class="c-dist5">3.11%</td>
+<td class="c-price">3.96</td>
+<td class="c-pct up">0.38%</td>
+<td class="c-ma5">3.87</td>
+<td class="c-dist5">2.45%</td>
 <td class="c-b5"><span class="badge n">正常</span></td>
-<td class="c-ma10">3.62</td>
-<td class="c-dist10">8.90%</td>
+<td class="c-ma10">3.69</td>
+<td class="c-dist10">7.37%</td>
 <td class="c-b10"><span class="badge n">正常</span></td>
 </tr></tbody></table></div></div>
 <div class="foot">说明：MA5/MA10 基于前复权日K收盘价；交易时段内均线并入实时价（与行情软件盘中均线口径一致）。“破线”= 现价低于对应均线；上市不足 5/10 个交易日的股票不参与对应比例统计。分组数据来自同花顺客户端云端自选股（景气/收息），可在客户端修改后重新同步。页面打开后自动实时刷新行情（无需服务器），“立即刷新”随时手动更新。数据源：腾讯行情（备用：东方财富），仅供研究参考，不构成投资建议。<br>此页面打开后每 60 秒自动拉取实时行情（交易时段内有效）；定时快照由 GitHub Actions 在交易日 10:30、14:30 生成。　页面版本：v20260811-3</div>
 <script>
-const LIVE = {"groups": [{"name": "景气", "codes": ["688268", "002738", "688825", "hk02498", "688106", "002192", "000833", "002594", "688181", "301269", "603435", "688981", "603986", "688270", "000725", "603125", "688110", "159206", "688521", "688798", "603893", "688143"]}, {"name": "收息", "codes": ["hk01405", "hk00696", "hk01448", "hk02669", "hk01066", "hk06049", "512890", "hk06078", "hk00506"]}], "codes": [{"code": "688268", "symbol": "sh688268", "name": "华特气体", "closes": [141.35, 145.2, 142.75, 142.3, 144.0, 148.28, 144.2, 153.57, 141.6, 137.56], "price": 137.56, "pct": -2.85, "ma5": 145.042, "ma10": 144.081, "below5": true, "below10": true}, {"code": "002738", "symbol": "sz002738", "name": "中矿资源", "closes": [51.63, 54.3, 53.69, 50.35, 51.13, 51.67, 53.43, 53.94, 52.05, 49.42], "price": 49.42, "pct": -5.05, "ma5": 52.102, "ma10": 52.161, "below5": true, "below10": true}, {"code": "688825", "symbol": "sh688825", "name": "长鑫科技", "closes": [57.57, 58.0, 56.6, 56.5, 56.1, 59.12, 58.6, 58.01, 56.5, 54.38], "price": 54.38, "pct": -3.75, "ma5": 57.322, "ma10": 57.138, "below5": true, "below10": true}, {"code": "hk02498", "symbol": "hk02498", "name": "速腾聚创", "closes": [21.28, 20.94, 17.9, 18.59, 18.83, 19.26, 18.83, 18.06, 18.0, 17.39], "price": 17.39, "pct": -3.39, "ma5": 18.308, "ma10": 18.908, "below5": true, "below10": true}, {"code": "688106", "symbol": "sh688106", "name": "金宏气体", "closes": [27.36, 27.93, 27.01, 26.87, 27.24, 28.22, 27.78, 28.01, 26.65, 25.96], "price": 25.96, "pct": -2.59, "ma5": 27.324, "ma10": 27.303, "below5": true, "below10": true}, {"code": "hk01405", "symbol": "hk01405", "name": "达势股份", "closes": [37.1, 37.54, 37.26, 36.94, 37.4, 32.14, 34.48, 33.3, 32.18, 31.0], "price": 31.0, "pct": -3.67, "ma5": 32.62, "ma10": 34.934, "below5": true, "below10": true}, {"code": "002192", "symbol": "sz002192", "name": "融捷股份", "closes": [65.92, 72.51, 76.85, 72.15, 72.17, 73.69, 74.43, 73.98, 71.69, 69.21], "price": 69.21, "pct": -3.46, "ma5": 72.6, "ma10": 72.26, "below5": true, "below10": true}, {"code": "000833", "symbol": "sz000833", "name": "粤桂股份", "closes": [21.04, 21.65, 21.27, 20.88, 20.7, 21.24, 21.5, 21.18, 21.05, 20.32], "price": 20.32, "pct": -3.47, "ma5": 21.058, "ma10": 21.083, "below5": true, "below10": true}, {"code": "002594", "symbol": "sz002594", "name": "比亚迪", "closes": [90.48, 90.47, 90.66, 91.36, 92.09, 91.49, 92.32, 88.2, 88.71, 86.81], "price": 86.81, "pct": -2.14, "ma5": 89.506, "ma10": 90.259, "below5": true, "below10": true}, {"code": "688181", "symbol": "sh688181", "name": "八亿时空", "closes": [38.8, 38.72, 38.07, 38.07, 37.55, 38.7, 37.51, 38.69, 37.62, 36.74], "price": 36.74, "pct": -2.34, "ma5": 37.852, "ma10": 38.047, "below5": true, "below10": true}, {"code": "301269", "symbol": "sz301269", "name": "华大九天", "closes": [94.64, 95.2, 91.25, 92.4, 94.3, 96.62, 96.1, 99.71, 97.61, 94.13], "price": 94.13, "pct": -3.57, "ma5": 96.834, "ma10": 95.196, "below5": true, "below10": true}, {"code": "603435", "symbol": "sh603435", "name": "嘉德利", "closes": [50.58, 50.38, 48.57, 49.16, 48.45, 53.3, 52.31, 52.15, 51.14, 50.44], "price": 50.44, "pct": -1.37, "ma5": 51.868, "ma10": 50.648, "below5": true, "below10": true}, {"code": "688981", "symbol": "sh688981", "name": "中芯国际", "closes": [125.5, 124.8, 120.58, 120.0, 124.15, 126.33, 125.88, 128.7, 126.11, 122.65], "price": 122.65, "pct": -2.74, "ma5": 125.934, "ma10": 124.47, "below5": true, "below10": true}, {"code": "603986", "symbol": "sh603986", "name": "兆易创新", "closes": [403.5, 409.06, 381.66, 395.51, 392.5, 411.2, 396.82, 406.0, 393.0, 389.15], "price": 389.15, "pct": -0.98, "ma5": 399.234, "ma10": 397.84, "below5": true, "below10": true}, {"code": "hk00696", "symbol": "hk00696", "name": "中国民航信息网络", "closes": [8.24, 8.275, 8.34, 8.935, 8.815, 9.1, 8.935, 8.715, 8.645, 8.58], "price": 8.58, "pct": -0.75, "ma5": 8.795, "ma10": 8.658, "below5": true, "below10": true}, {"code": "688270", "symbol": "sh688270", "name": "ST臻镭", "closes": [61.46, 61.89, 58.79, 59.23, 63.41, 61.28, 59.67, 58.61, 57.49, 57.69], "price": 57.69, "pct": 0.35, "ma5": 58.948, "ma10": 59.952, "below5": true, "below10": true}, {"code": "000725", "symbol": "sz000725", "name": "京东方Ａ", "closes": [5.9, 6.0, 5.75, 5.74, 5.72, 5.94, 5.92, 6.01, 5.91, 5.79], "price": 5.79, "pct": -2.03, "ma5": 5.914, "ma10": 5.868, "below5": true, "below10": true}, {"code": "hk01448", "symbol": "hk01448", "name": "福寿园", "closes": [2.75, 2.77, 2.85, 2.88, 2.79, 2.76, 2.72, 2.68, 2.64, 2.64], "price": 2.64, "pct": 0.0, "ma5": 2.688, "ma10": 2.748, "below5": true, "below10": true}, {"code": "603125", "symbol": "sh603125", "name": "常青科技", "closes": [22.8, 23.02, 23.01, 22.8, 22.66, 23.12, 23.23, 23.37, 23.08, 22.81], "price": 22.81, "pct": -1.17, "ma5": 23.122, "ma10": 22.99, "below5": true, "below10": true}, {"code": "hk02669", "symbol": "hk02669", "name": "中海物业", "closes": [3.365, 3.62, 3.59, 3.65, 3.59, 3.55, 3.535, 3.43, 3.455, 3.45], "price": 3.45, "pct": -0.14, "ma5": 3.484, "ma10": 3.523, "below5": true, "below10": true}, {"code": "688110", "symbol": "sh688110", "name": "东芯股份", "closes": [114.32, 120.7, 116.1, 113.97, 113.4, 118.35, 115.01, 119.84, 118.0, 116.38], "price": 116.38, "pct": -1.37, "ma5": 117.516, "ma10": 116.607, "below5": true, "below10": true}, {"code": "hk01066", "symbol": "hk01066", "name": "威高股份", "closes": [3.52, 3.485, 3.44, 3.48, 3.345, 3.27, 3.285, 3.215, 3.255, 3.225], "price": 3.225, "pct": -0.92, "ma5": 3.25, "ma10": 3.352, "below5": true, "below10": true}, {"code": "hk06049", "symbol": "hk06049", "name": "保利物业", "closes": [27.5, 28.42, 27.78, 28.86, 28.74, 28.36, 28.24, 27.7, 27.92, 28.1], "price": 28.1, "pct": 0.64, "ma5": 28.064, "ma10": 28.162, "below5": false, "below10": true}, {"code": "159206", "symbol": "sz159206", "name": "卫星ETF永赢", "closes": [1.339, 1.354, 1.312, 1.322, 1.316, 1.352, 1.338, 1.395, 1.376, 1.366], "price": 1.366, "pct": -0.73, "ma5": 1.365, "ma10": 1.347, "below5": false, "below10": false}, {"code": "688521", "symbol": "sh688521", "name": "芯原股份", "closes": [178.37, 178.38, 168.66, 164.49, 180.5, 193.7, 186.9, 200.26, 192.4, 193.61], "price": 193.61, "pct": 0.63, "ma5": 193.374, "ma10": 183.727, "below5": false, "below10": false}, {"code": "512890", "symbol": "sh512890", "name": "红利低波ETF华泰柏瑞", "closes": [1.183, 1.176, 1.189, 1.185, 1.191, 1.183, 1.184, 1.192, 1.208, 1.201], "price": 1.201, "pct": -0.58, "ma5": 1.194, "ma10": 1.189, "below5": false, "below10": false}, {"code": "hk06078", "symbol": "hk06078", "name": "海吉亚医疗", "closes": [9.725, 9.73, 9.69, 9.955, 10.13, 9.43, 10.58, 10.31, 10.34, 10.26], "price": 10.26, "pct": -0.77, "ma5": 10.184, "ma10": 10.015, "below5": false, "below10": false}, {"code": "688798", "symbol": "sh688798", "name": "艾为电子", "closes": [53.99, 54.05, 52.58, 54.91, 54.05, 61.93, 62.51, 68.1, 65.0, 65.61], "price": 65.61, "pct": 0.94, "ma5": 64.63, "ma10": 59.273, "below5": false, "below10": false}, {"code": "hk00506", "symbol": "hk00506", "name": "中国食品", "closes": [3.265, 3.33, 3.325, 3.55, 3.625, 3.75, 3.76, 3.845, 3.83, 3.945], "price": 3.945, "pct": 3.0, "ma5": 3.826, "ma10": 3.623, "below5": false, "below10": false}, {"code": "603893", "symbol": "sh603893", "name": "瑞芯微", "closes": [182.65, 180.61, 174.6, 175.06, 176.18, 181.38, 176.9, 194.59, 203.6, 197.41], "price": 197.41, "pct": -3.04, "ma5": 190.776, "ma10": 184.298, "below5": false, "below10": false}, {"code": "688143", "symbol": "sh688143", "name": "长盈通", "closes": [149.5, 158.8, 150.22, 168.8, 170.51, 173.3, 162.51, 160.98, 167.0, 174.55], "price": 174.55, "pct": 4.52, "ma5": 167.668, "ma10": 163.617, "below5": false, "below10": false}]};
+const LIVE = {"groups": [{"name": "景气", "codes": ["688268", "000833", "301269", "688106", "688825", "002192", "002738", "603435", "603986", "hk02498", "000725", "688181", "688270", "688110", "688981", "002594", "603125", "688798", "688521", "159206", "603893", "688143"]}, {"name": "收息", "codes": ["hk01405", "hk01448", "hk00696", "hk01066", "hk06078", "hk02669", "512890", "hk06049", "hk00506"]}], "codes": [{"code": "688268", "symbol": "sh688268", "name": "华特气体", "closes": [145.2, 142.75, 142.3, 144.0, 148.28, 144.2, 153.57, 141.6, 137.56, 134.36], "price": 134.36, "pct": -2.33, "ma5": 142.258, "ma10": 143.382, "below5": true, "below10": true}, {"code": "000833", "symbol": "sz000833", "name": "粤桂股份", "closes": [21.65, 21.27, 20.88, 20.7, 21.24, 21.5, 21.18, 21.05, 20.34, 19.87], "price": 19.87, "pct": -2.31, "ma5": 20.788, "ma10": 20.968, "below5": true, "below10": true}, {"code": "hk01405", "symbol": "hk01405", "name": "达势股份", "closes": [37.54, 37.26, 36.94, 37.4, 32.14, 34.48, 33.3, 32.18, 31.12, 31.14], "price": 31.14, "pct": 0.06, "ma5": 32.444, "ma10": 34.35, "below5": true, "below10": true}, {"code": "301269", "symbol": "sz301269", "name": "华大九天", "closes": [95.2, 91.25, 92.4, 94.3, 96.62, 96.1, 99.71, 97.61, 94.09, 92.3], "price": 92.3, "pct": -1.9, "ma5": 95.962, "ma10": 94.958, "below5": true, "below10": true}, {"code": "688106", "symbol": "sh688106", "name": "金宏气体", "closes": [27.93, 27.01, 26.87, 27.24, 28.22, 27.78, 28.01, 26.65, 25.99, 25.98], "price": 25.98, "pct": -0.04, "ma5": 26.882, "ma10": 27.168, "below5": true, "below10": true}, {"code": "688825", "symbol": "sh688825", "name": "长鑫科技", "closes": [58.0, 56.6, 56.5, 56.1, 59.12, 58.6, 58.01, 56.5, 54.32, 54.56], "price": 54.56, "pct": 0.44, "ma5": 56.398, "ma10": 56.831, "below5": true, "below10": true}, {"code": "002192", "symbol": "sz002192", "name": "融捷股份", "closes": [72.51, 76.85, 72.15, 72.17, 73.69, 74.43, 73.98, 71.69, 69.25, 69.53], "price": 69.53, "pct": 0.4, "ma5": 71.776, "ma10": 72.625, "below5": true, "below10": true}, {"code": "002738", "symbol": "sz002738", "name": "中矿资源", "closes": [54.3, 53.69, 50.35, 51.13, 51.67, 53.43, 53.94, 52.05, 49.3, 50.21], "price": 50.21, "pct": 1.85, "ma5": 51.786, "ma10": 52.007, "below5": true, "below10": true}, {"code": "603435", "symbol": "sh603435", "name": "嘉德利", "closes": [50.38, 48.57, 49.16, 48.45, 53.3, 52.31, 52.15, 51.14, 50.4, 49.6], "price": 49.6, "pct": -1.59, "ma5": 51.12, "ma10": 50.546, "below5": true, "below10": true}, {"code": "603986", "symbol": "sh603986", "name": "兆易创新", "closes": [409.06, 381.66, 395.51, 392.5, 411.2, 396.82, 406.0, 393.0, 388.86, 383.0], "price": 383.0, "pct": -1.51, "ma5": 393.536, "ma10": 395.761, "below5": true, "below10": true}, {"code": "hk02498", "symbol": "hk02498", "name": "速腾聚创", "closes": [20.94, 17.9, 18.59, 18.83, 19.26, 18.83, 18.06, 18.0, 17.34, 17.48], "price": 17.48, "pct": 0.81, "ma5": 17.942, "ma10": 18.523, "below5": true, "below10": true}, {"code": "000725", "symbol": "sz000725", "name": "京东方Ａ", "closes": [6.0, 5.75, 5.74, 5.72, 5.94, 5.92, 6.01, 5.91, 5.79, 5.73], "price": 5.73, "pct": -1.04, "ma5": 5.872, "ma10": 5.851, "below5": true, "below10": true}, {"code": "688181", "symbol": "sh688181", "name": "八亿时空", "closes": [38.72, 38.07, 38.07, 37.55, 38.7, 37.51, 38.69, 37.62, 36.71, 36.62], "price": 36.62, "pct": -0.25, "ma5": 37.43, "ma10": 37.826, "below5": true, "below10": true}, {"code": "hk01448", "symbol": "hk01448", "name": "福寿园", "closes": [2.75, 2.77, 2.85, 2.88, 2.79, 2.76, 2.72, 2.68, 2.64, 2.64], "price": 2.64, "pct": 0.0, "ma5": 2.688, "ma10": 2.748, "below5": true, "below10": true}, {"code": "688270", "symbol": "sh688270", "name": "ST臻镭", "closes": [61.89, 58.79, 59.23, 63.41, 61.28, 59.67, 58.61, 57.49, 57.6, 57.1], "price": 57.1, "pct": -0.87, "ma5": 58.094, "ma10": 59.507, "below5": true, "below10": true}, {"code": "688110", "symbol": "sh688110", "name": "东芯股份", "closes": [120.7, 116.1, 113.97, 113.4, 118.35, 115.01, 119.84, 118.0, 116.4, 114.96], "price": 114.96, "pct": -1.24, "ma5": 116.842, "ma10": 116.673, "below5": true, "below10": true}, {"code": "688981", "symbol": "sh688981", "name": "中芯国际", "closes": [124.8, 120.58, 120.0, 124.15, 126.33, 125.88, 128.7, 126.11, 122.55, 123.32], "price": 123.32, "pct": 0.63, "ma5": 125.312, "ma10": 124.242, "below5": true, "below10": true}, {"code": "002594", "symbol": "sz002594", "name": "比亚迪", "closes": [90.47, 90.66, 91.36, 92.09, 91.49, 92.32, 88.2, 88.71, 86.8, 87.39], "price": 87.39, "pct": 0.68, "ma5": 88.684, "ma10": 89.949, "below5": true, "below10": true}, {"code": "603125", "symbol": "sh603125", "name": "常青科技", "closes": [23.02, 23.01, 22.8, 22.66, 23.12, 23.23, 23.37, 23.08, 22.81, 22.77], "price": 22.77, "pct": -0.18, "ma5": 23.052, "ma10": 22.987, "below5": true, "below10": true}, {"code": "hk00696", "symbol": "hk00696", "name": "中国民航信息网络", "closes": [8.275, 8.34, 8.935, 8.815, 9.1, 8.935, 8.715, 8.645, 8.59, 8.63], "price": 8.63, "pct": 0.47, "ma5": 8.703, "ma10": 8.698, "below5": true, "below10": true}, {"code": "hk01066", "symbol": "hk01066", "name": "威高股份", "closes": [3.485, 3.44, 3.48, 3.345, 3.27, 3.285, 3.215, 3.255, 3.23, 3.22], "price": 3.22, "pct": -0.31, "ma5": 3.241, "ma10": 3.323, "below5": true, "below10": true}, {"code": "hk06078", "symbol": "hk06078", "name": "海吉亚医疗", "closes": [9.73, 9.69, 9.955, 10.13, 9.43, 10.58, 10.31, 10.34, 10.28, 10.19], "price": 10.19, "pct": -0.88, "ma5": 10.34, "ma10": 10.064, "below5": true, "below10": false}, {"code": "688798", "symbol": "sh688798", "name": "艾为电子", "closes": [54.05, 52.58, 54.91, 54.05, 61.93, 62.51, 68.1, 65.0, 65.6, 64.2], "price": 64.2, "pct": -2.13, "ma5": 65.082, "ma10": 60.293, "below5": true, "below10": false}, {"code": "688521", "symbol": "sh688521", "name": "芯原股份", "closes": [178.38, 168.66, 164.49, 180.5, 193.7, 186.9, 200.26, 192.4, 193.6, 190.3], "price": 190.3, "pct": -1.7, "ma5": 192.692, "ma10": 184.919, "below5": true, "below10": false}, {"code": "159206", "symbol": "sz159206", "name": "卫星ETF永赢", "closes": [1.354, 1.312, 1.322, 1.316, 1.352, 1.338, 1.395, 1.376, 1.366, 1.353], "price": 1.353, "pct": -0.95, "ma5": 1.366, "ma10": 1.348, "below5": true, "below10": false}, {"code": "hk02669", "symbol": "hk02669", "name": "中海物业", "closes": [3.62, 3.59, 3.65, 3.59, 3.55, 3.535, 3.43, 3.455, 3.44, 3.495], "price": 3.495, "pct": 1.6, "ma5": 3.471, "ma10": 3.535, "below5": false, "below10": true}, {"code": "603893", "symbol": "sh603893", "name": "瑞芯微", "closes": [180.61, 174.6, 175.06, 176.18, 181.38, 176.9, 194.59, 203.6, 197.49, 193.38], "price": 193.38, "pct": -2.08, "ma5": 193.192, "ma10": 185.379, "below5": false, "below10": false}, {"code": "512890", "symbol": "sh512890", "name": "红利低波ETF华泰柏瑞", "closes": [1.176, 1.189, 1.185, 1.191, 1.183, 1.184, 1.192, 1.208, 1.201, 1.209], "price": 1.209, "pct": 0.67, "ma5": 1.199, "ma10": 1.192, "below5": false, "below10": false}, {"code": "hk06049", "symbol": "hk06049", "name": "保利物业", "closes": [28.42, 27.78, 28.86, 28.74, 28.36, 28.24, 27.7, 27.92, 28.1, 28.3], "price": 28.3, "pct": 0.71, "ma5": 28.052, "ma10": 28.242, "below5": false, "below10": false}, {"code": "hk00506", "symbol": "hk00506", "name": "中国食品", "closes": [3.33, 3.325, 3.55, 3.625, 3.75, 3.76, 3.845, 3.83, 3.95, 3.965], "price": 3.965, "pct": 0.38, "ma5": 3.87, "ma10": 3.693, "below5": false, "below10": false}, {"code": "688143", "symbol": "sh688143", "name": "长盈通", "closes": [158.8, 150.22, 168.8, 170.51, 173.3, 162.51, 160.98, 167.0, 174.56, 180.0], "price": 180.0, "pct": 3.12, "ma5": 169.01, "ma10": 166.668, "below5": false, "below10": false}]};
 const THRESH_NAMES = {"ma5_70":"破5日线 ≥ 70%","ma5_80":"破5日线 ≥ 80%","ma10_70":"破10日线 ≥ 70%","ma10_80":"破10日线 ≥ 80%"};
 const KEYS = ["ma5_70","ma5_80","ma10_70","ma10_80"];
 function badge(v){return v?'<span class="badge y">破线</span>':'<span class="badge n">正常</span>';}
