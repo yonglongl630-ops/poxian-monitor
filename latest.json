@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-20 15:56:12",
+  "generated_at": "2026-10-20 15:56:41",
   "date": "2026-10-20",
-  "time": "15:56:12",
+  "time": "15:56:41",
   "slot": "pm",
   "hit_keys": [
     "ma10_70",
@@ -218,6 +218,31 @@
           "kline_date": "2026-10-20"
         },
         {
+          "code": "688981",
+          "name": "中芯国际",
+          "price": 101.98,
+          "pct": 2.29,
+          "closes": [
+            111.99,
+            107.08,
+            108.42,
+            106.68,
+            106.0,
+            102.55,
+            104.44,
+            102.66,
+            99.7,
+            101.98
+          ],
+          "ma5": 102.266,
+          "below5": true,
+          "dist5": -0.28,
+          "ma10": 105.15,
+          "below10": true,
+          "dist10": -3.01,
+          "kline_date": "2026-10-20"
+        },
+        {
           "code": "688268",
           "name": "华特气体",
           "price": 107.66,
@@ -357,14 +382,14 @@
             15.22,
             14.6,
             14.78,
-            15.36
+            15.37
           ],
-          "ma5": 15.134,
+          "ma5": 15.136,
           "below5": false,
-          "dist5": 1.76,
-          "ma10": 15.557,
+          "dist5": 1.74,
+          "ma10": 15.558,
           "below10": true,
-          "dist10": -1.01,
+          "dist10": -1.02,
           "kline_date": "2026-10-20"
         },
         {
@@ -541,32 +566,18 @@
           "below10": false,
           "dist10": 1.04,
           "kline_date": "2026-10-20"
-        },
-        {
-          "code": "688981",
-          "name": "中芯国际",
-          "price": 101.98,
-          "pct": 2.29,
-          "closes": [],
-          "ma5": null,
-          "below5": null,
-          "dist5": null,
-          "ma10": null,
-          "below10": null,
-          "dist10": null,
-          "kline_date": null
         }
       ],
       "summary": {
         "ma5": {
-          "valid": 21,
-          "below": 9,
-          "pct": 42.86
+          "valid": 22,
+          "below": 10,
+          "pct": 45.45
         },
         "ma10": {
-          "valid": 21,
-          "below": 19,
-          "pct": 90.48
+          "valid": 22,
+          "below": 20,
+          "pct": 90.91
         }
       },
       "thresholds": {
@@ -630,6 +641,56 @@
           "kline_date": "2026-10-20"
         },
         {
+          "code": "hk01066",
+          "name": "威高股份",
+          "price": 3.355,
+          "pct": 0.3,
+          "closes": [
+            3.295,
+            3.25,
+            3.26,
+            3.31,
+            3.32,
+            3.39,
+            3.37,
+            3.35,
+            3.345,
+            3.34
+          ],
+          "ma5": 3.359,
+          "below5": true,
+          "dist5": -0.12,
+          "ma10": 3.323,
+          "below10": false,
+          "dist10": 0.96,
+          "kline_date": "2026-10-20"
+        },
+        {
+          "code": "512890",
+          "name": "红利低波ETF华泰柏瑞",
+          "price": 1.223,
+          "pct": -1.05,
+          "closes": [
+            1.196,
+            1.212,
+            1.208,
+            1.23,
+            1.224,
+            1.231,
+            1.212,
+            1.219,
+            1.236,
+            1.22
+          ],
+          "ma5": 1.224,
+          "below5": true,
+          "dist5": -0.05,
+          "ma10": 1.219,
+          "below10": false,
+          "dist10": 0.34,
+          "kline_date": "2026-10-20"
+        },
+        {
           "code": "hk02669",
           "name": "中海物业",
           "price": 3.345,
@@ -644,14 +705,39 @@
             3.325,
             3.325,
             3.345,
-            3.34
+            3.33
           ],
-          "ma5": 3.339,
+          "ma5": 3.337,
           "below5": false,
-          "dist5": 0.18,
-          "ma10": 3.318,
+          "dist5": 0.24,
+          "ma10": 3.317,
           "below10": false,
-          "dist10": 0.81,
+          "dist10": 0.84,
+          "kline_date": "2026-10-20"
+        },
+        {
+          "code": "hk00506",
+          "name": "中国食品",
+          "price": 3.785,
+          "pct": -0.13,
+          "closes": [
+            3.69,
+            3.685,
+            3.74,
+            3.775,
+            3.765,
+            3.785,
+            3.785,
+            3.725,
+            3.79,
+            3.785
+          ],
+          "ma5": 3.774,
+          "below5": false,
+          "dist5": 0.29,
+          "ma10": 3.752,
+          "below10": false,
+          "dist10": 0.87,
           "kline_date": "2026-10-20"
         },
         {
@@ -669,14 +755,14 @@
             9.555,
             9.44,
             9.39,
-            9.57
+            9.615
           ],
-          "ma5": 9.499,
+          "ma5": 9.508,
           "below5": false,
-          "dist5": 1.01,
-          "ma10": 9.491,
+          "dist5": 0.92,
+          "ma10": 9.495,
           "below10": false,
-          "dist10": 1.1,
+          "dist10": 1.05,
           "kline_date": "2026-10-20"
         },
         {
@@ -705,34 +791,6 @@
           "kline_date": "2026-10-20"
         },
         {
-          "code": "512890",
-          "name": "红利低波ETF华泰柏瑞",
-          "price": 1.223,
-          "pct": -1.05,
-          "closes": [],
-          "ma5": null,
-          "below5": null,
-          "dist5": null,
-          "ma10": null,
-          "below10": null,
-          "dist10": null,
-          "kline_date": null
-        },
-        {
-          "code": "hk01066",
-          "name": "威高股份",
-          "price": 3.355,
-          "pct": 0.3,
-          "closes": [],
-          "ma5": null,
-          "below5": null,
-          "dist5": null,
-          "ma10": null,
-          "below10": null,
-          "dist10": null,
-          "kline_date": null
-        },
-        {
           "code": "hk00696",
           "name": "中国民航信息网络",
           "price": 9.165,
@@ -745,32 +803,18 @@
           "below10": null,
           "dist10": null,
           "kline_date": null
-        },
-        {
-          "code": "hk00506",
-          "name": "中国食品",
-          "price": 3.785,
-          "pct": -0.13,
-          "closes": [],
-          "ma5": null,
-          "below5": null,
-          "dist5": null,
-          "ma10": null,
-          "below10": null,
-          "dist10": null,
-          "kline_date": null
         }
       ],
       "summary": {
         "ma5": {
-          "valid": 5,
-          "below": 2,
-          "pct": 40.0
+          "valid": 8,
+          "below": 4,
+          "pct": 50.0
         },
         "ma10": {
-          "valid": 5,
+          "valid": 8,
           "below": 2,
-          "pct": 40.0
+          "pct": 25.0
         }
       },
       "thresholds": {
@@ -1035,6 +1079,31 @@
         "kline_date": "2026-10-20"
       },
       {
+        "code": "688981",
+        "name": "中芯国际",
+        "price": 101.98,
+        "pct": 2.29,
+        "closes": [
+          111.99,
+          107.08,
+          108.42,
+          106.68,
+          106.0,
+          102.55,
+          104.44,
+          102.66,
+          99.7,
+          101.98
+        ],
+        "ma5": 102.266,
+        "below5": true,
+        "dist5": -0.28,
+        "ma10": 105.15,
+        "below10": true,
+        "dist10": -3.01,
+        "kline_date": "2026-10-20"
+      },
+      {
         "code": "688268",
         "name": "华特气体",
         "price": 107.66,
@@ -1057,6 +1126,56 @@
         "ma10": 111.966,
         "below10": true,
         "dist10": -3.85,
+        "kline_date": "2026-10-20"
+      },
+      {
+        "code": "hk01066",
+        "name": "威高股份",
+        "price": 3.355,
+        "pct": 0.3,
+        "closes": [
+          3.295,
+          3.25,
+          3.26,
+          3.31,
+          3.32,
+          3.39,
+          3.37,
+          3.35,
+          3.345,
+          3.34
+        ],
+        "ma5": 3.359,
+        "below5": true,
+        "dist5": -0.12,
+        "ma10": 3.323,
+        "below10": false,
+        "dist10": 0.96,
+        "kline_date": "2026-10-20"
+      },
+      {
+        "code": "512890",
+        "name": "红利低波ETF华泰柏瑞",
+        "price": 1.223,
+        "pct": -1.05,
+        "closes": [
+          1.196,
+          1.212,
+          1.208,
+          1.23,
+          1.224,
+          1.231,
+          1.212,
+          1.219,
+          1.236,
+          1.22
+        ],
+        "ma5": 1.224,
+        "below5": true,
+        "dist5": -0.05,
+        "ma10": 1.219,
+        "below10": false,
+        "dist10": 0.34,
         "kline_date": "2026-10-20"
       },
       {
@@ -1174,14 +1293,14 @@
           15.22,
           14.6,
           14.78,
-          15.36
+          15.37
         ],
-        "ma5": 15.134,
+        "ma5": 15.136,
         "below5": false,
-        "dist5": 1.76,
-        "ma10": 15.557,
+        "dist5": 1.74,
+        "ma10": 15.558,
         "below10": true,
-        "dist10": -1.01,
+        "dist10": -1.02,
         "kline_date": "2026-10-20"
       },
       {
@@ -1324,14 +1443,39 @@
           3.325,
           3.325,
           3.345,
-          3.34
+          3.33
         ],
-        "ma5": 3.339,
+        "ma5": 3.337,
         "below5": false,
-        "dist5": 0.18,
-        "ma10": 3.318,
+        "dist5": 0.24,
+        "ma10": 3.317,
         "below10": false,
-        "dist10": 0.81,
+        "dist10": 0.84,
+        "kline_date": "2026-10-20"
+      },
+      {
+        "code": "hk00506",
+        "name": "中国食品",
+        "price": 3.785,
+        "pct": -0.13,
+        "closes": [
+          3.69,
+          3.685,
+          3.74,
+          3.775,
+          3.765,
+          3.785,
+          3.785,
+          3.725,
+          3.79,
+          3.785
+        ],
+        "ma5": 3.774,
+        "below5": false,
+        "dist5": 0.29,
+        "ma10": 3.752,
+        "below10": false,
+        "dist10": 0.87,
         "kline_date": "2026-10-20"
       },
       {
@@ -1349,14 +1493,14 @@
           9.555,
           9.44,
           9.39,
-          9.57
+          9.615
         ],
-        "ma5": 9.499,
+        "ma5": 9.508,
         "below5": false,
-        "dist5": 1.01,
-        "ma10": 9.491,
+        "dist5": 0.92,
+        "ma10": 9.495,
         "below10": false,
-        "dist10": 1.1,
+        "dist10": 1.05,
         "kline_date": "2026-10-20"
       },
       {
@@ -1435,48 +1579,6 @@
         "kline_date": "2026-10-20"
       },
       {
-        "code": "688981",
-        "name": "中芯国际",
-        "price": 101.98,
-        "pct": 2.29,
-        "closes": [],
-        "ma5": null,
-        "below5": null,
-        "dist5": null,
-        "ma10": null,
-        "below10": null,
-        "dist10": null,
-        "kline_date": null
-      },
-      {
-        "code": "512890",
-        "name": "红利低波ETF华泰柏瑞",
-        "price": 1.223,
-        "pct": -1.05,
-        "closes": [],
-        "ma5": null,
-        "below5": null,
-        "dist5": null,
-        "ma10": null,
-        "below10": null,
-        "dist10": null,
-        "kline_date": null
-      },
-      {
-        "code": "hk01066",
-        "name": "威高股份",
-        "price": 3.355,
-        "pct": 0.3,
-        "closes": [],
-        "ma5": null,
-        "below5": null,
-        "dist5": null,
-        "ma10": null,
-        "below10": null,
-        "dist10": null,
-        "kline_date": null
-      },
-      {
         "code": "hk00696",
         "name": "中国民航信息网络",
         "price": 9.165,
@@ -1489,39 +1591,25 @@
         "below10": null,
         "dist10": null,
         "kline_date": null
-      },
-      {
-        "code": "hk00506",
-        "name": "中国食品",
-        "price": 3.785,
-        "pct": -0.13,
-        "closes": [],
-        "ma5": null,
-        "below5": null,
-        "dist5": null,
-        "ma10": null,
-        "below10": null,
-        "dist10": null,
-        "kline_date": null
       }
     ],
     "summary": {
       "ma5": {
-        "valid": 26,
-        "below": 11,
-        "pct": 42.31
+        "valid": 30,
+        "below": 14,
+        "pct": 46.67
       },
       "ma10": {
-        "valid": 26,
-        "below": 21,
-        "pct": 80.77
+        "valid": 30,
+        "below": 22,
+        "pct": 73.33
       }
     },
     "thresholds": {
       "ma5_70": false,
       "ma5_80": false,
       "ma10_70": true,
-      "ma10_80": true
+      "ma10_80": false
     }
   },
   "skipped": [],
