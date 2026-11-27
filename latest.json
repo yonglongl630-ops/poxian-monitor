@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-11-27 19:07:45",
+  "generated_at": "2026-11-27 19:26:34",
   "date": "2026-11-27",
-  "time": "19:07:45",
+  "time": "19:26:34",
   "slot": "pm",
   "hit_keys": [
     "ma10_70"
@@ -1634,5 +1634,5 @@
     }
   },
   "skipped": [],
-  "push_sent": true
+  "push_sent": false
 }
